@@ -1,0 +1,33 @@
+body {
+    margin: 0;
+    /* 透明背景 */
+    background-color: rgba(255, 255, 255, 0.8);
+    /* 防止内容溢出 */
+    overflow: hidden;
+
+
+    -moz-user-select: none;
+    -o-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+
+
+    .ant-form-item-label>label {
+        font-size: 12px !important;
+    }
+
+    .ant-input {
+        font-size: 12px !important;
+    }
+
+    .ant-select-selector {
+        font-size: 12px !important;
+    }
+
+    .ant-select-item-option-content {
+        font-size: 12px !important;
+    }
+}
