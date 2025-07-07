@@ -1,40 +1,40 @@
-import React, { useRef, useState } from 'react';
-import { Tabs } from 'antd';
-import './CustomTab.css';
-import { useNavigate } from 'umi';
+import { Tabs } from "antd";
+import React, { useRef, useState } from "react";
+import { useNavigate } from "umi";
+import "./CustomTab.css";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
-const initialItems = [
-    { label: 'New Connection', key: '1', path: '/apisix' },
-];
+const initialItems = [{ label: "New Connection", key: "1", path: "/apisix" }];
 
 const App: React.FC = () => {
-
     const [activeKey, setActiveKey] = useState(initialItems[0].key);
     const [items, setItems] = useState(initialItems);
     const newTabIndex = useRef(0);
-    const nav = useNavigate()
+    const nav = useNavigate();
 
     const onChange = (newActiveKey: string) => {
         setActiveKey(newActiveKey);
-        const matchItem = items.find(item => item.key == newActiveKey)
-        console.log(matchItem)
+        const matchItem = items.find((item) => item.key == newActiveKey);
+        console.log(matchItem);
         if (matchItem?.path) {
             nav(`${matchItem.path}`);
-
         } else {
-            console.error('Path is missing or invalid:', matchItem);
+            console.error("Path is missing or invalid:", matchItem);
         }
     };
 
     const add = () => {
         const newActiveKey = `newTab${newTabIndex.current++}`;
         const newPanes = [...items];
-        newPanes.push({ label: 'New Tab', key: newActiveKey, path: "/favorites/" + newActiveKey });
+        newPanes.push({
+            label: "New Tab",
+            key: newActiveKey,
+            path: "/favorites/" + newActiveKey,
+        });
         setItems(newPanes);
         setActiveKey(newActiveKey);
-        nav("/favorites/" + newActiveKey); 
+        nav("/favorites/" + newActiveKey);
     };
 
     const remove = (targetKey: TargetKey) => {
@@ -59,9 +59,9 @@ const App: React.FC = () => {
 
     const onEdit = (
         targetKey: React.MouseEvent | React.KeyboardEvent | string,
-        action: 'add' | 'remove',
+        action: "add" | "remove"
     ) => {
-        if (action === 'add') {
+        if (action === "add") {
             add();
         } else {
             remove(targetKey);
@@ -75,12 +75,10 @@ const App: React.FC = () => {
             activeKey={activeKey}
             onEdit={onEdit}
             items={items}
-            size='small'
+            size="small"
             className="custom-tab"
-        >
-        </Tabs>
+        ></Tabs>
     );
 };
-
 
 export default App;

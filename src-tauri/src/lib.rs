@@ -7,6 +7,8 @@ use std::sync::atomic::AtomicBool;
 use apisix_connection::ApisixConnection;
 use db::SqlState;
 use native::window_design;
+use reqwest::Client;
+use serde::Deserialize;
 use tauri::AppHandle;
 
 #[tauri::command]
@@ -32,18 +34,34 @@ fn query_all(handle: tauri::AppHandle) -> Result<Vec<ApisixConnection>, String> 
     Ok(list)
 }
 
+#[derive(Debug, Deserialize)]
+pub struct PingConParams {
+    url: String,
+    api_key: Option<String>,
+}
+
 #[tauri::command]
-async fn req_ping_con() -> Result<String, String> {
-    let resp = reqwest::get("https://httpbin.org/ip")
+async fn ping(params: PingConParams) -> Result<String, String> {
+    let client = Client::new();
+
+    let mut req = client.get(&params.url);
+
+    if let Some(api_key) = params.api_key {
+        req = req.header("api_key", api_key);
+    }
+
+    let resp = req
+        .send()
         .await
         .map_err(|e| e.to_string())?
         .text()
         .await
         .map_err(|e| e.to_string())?;
-    println!("{resp:#?}");
+
+    println!("Response:\n{resp}");
     Ok(resp)
 }
-
+// Make sure this function is not duplicated elsewhere in your project.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -63,7 +81,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             save_apisix_connection,
             query_all,
-            req_ping_con
+            ping
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

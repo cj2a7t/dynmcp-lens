@@ -23,7 +23,8 @@
     "natur-immer": "^1.0.12",
     "sass": "^1.79.3",
     "sass-loader": "^16.0.2",
-    "umi": "^4.3.19"
+    "umi": "^4.3.19",
+    "umi-request": "^1.4.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.0.0-rc.18",
