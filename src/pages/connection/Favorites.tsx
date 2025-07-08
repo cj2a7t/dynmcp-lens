@@ -1,29 +1,27 @@
-import { ConnectionData } from '@/store/connection';
-import { useAsyncFn } from '@/utils/hooks';
-import { Input, Space, Table } from 'antd';
-import type { TableProps } from 'antd';
-import { useState } from 'react';
-import { useFlatInject } from 'umi';
+import { ConnectionData } from "@/apis/connection/healthz";
+import type { TableProps } from "antd";
+import { Space, Table } from "antd";
+import { useFlatInject } from "umi";
 
-const columns: TableProps<ConnectionData>['columns'] = [
+const columns: TableProps<ConnectionData>["columns"] = [
     {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
     },
     {
-        title: 'Host',
-        dataIndex: 'host',
-        key: 'host',
+        title: "Host",
+        dataIndex: "host",
+        key: "host",
     },
     {
-        title: 'Admin Key',
-        dataIndex: 'admin_key',
-        key: 'admin_key',
+        title: "Admin Key",
+        dataIndex: "admin_key",
+        key: "admin_key",
     },
     {
-        title: 'Action',
-        key: 'action',
+        title: "Action",
+        key: "action",
         render: (_, record) => (
             <Space size="middle">
                 <a>Invite</a>
@@ -34,19 +32,20 @@ const columns: TableProps<ConnectionData>['columns'] = [
 ];
 
 export default () => {
-
     console.log("Favorites loaded");
 
-    const [store] = useFlatInject('connection');
+    const [store] = useFlatInject("connection");
     // useAsyncFn(() => {
     //     store.ping()
     //     return store.fetchAll()
     // })
     return (
-        <div style={{
-            overflowY: "auto",
-            height: 'calc(100vh - 100px)',
-        }}>
+        <div
+            style={{
+                overflowY: "auto",
+                height: "calc(100vh - 100px)",
+            }}
+        >
             <Table<ConnectionData>
                 columns={columns}
                 dataSource={store.connections}
@@ -54,5 +53,5 @@ export default () => {
             />
             {/* <Input value={store.count} onChange={(e) => store.setValue(e.target.value)} /> */}
         </div>
-    )
+    );
 };

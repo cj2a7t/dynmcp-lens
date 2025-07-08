@@ -1,10 +1,10 @@
 body {
     margin: 0;
-    /* 透明背景 */
-    background-color: rgba(255, 255, 255, 0.8);
     /* 防止内容溢出 */
     overflow: hidden;
-
+    /* 透明背景 */
+    background-color: rgba(255, 255, 255, 0.8);
+    cursor: default;
 
     -moz-user-select: none;
     -o-user-select: none;
@@ -12,10 +12,8 @@ body {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    cursor: default;
 
-
-    .ant-form-item-label>label {
+    .ant-form-item-label > label {
         font-size: 12px !important;
     }
 
@@ -29,5 +27,30 @@ body {
 
     .ant-select-item-option-content {
         font-size: 12px !important;
+    }
+}
+
+.custom-tree {
+    .ant-tree-iconEle {
+        width: 16px !important;
+        margin-right: 2px !important;
+    }
+
+    .ant-tree-checkbox {
+        margin-right: 2px !important;
+    }
+
+    .ant-tree-title {
+        font-size: 12px !important;
+    }
+
+    .ant-tree-iconEle > * {
+        font-size: 14px;
+    }
+    .no-hover-bg {
+        background-color: transparent !important;
+    }
+    .no-hover-bg:hover {
+        background-color: transparent !important;
     }
 }

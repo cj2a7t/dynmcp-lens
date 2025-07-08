@@ -29,6 +29,7 @@ export default () => {
         } catch (err) {
             console.error("Ping error:", err);
         }
+        navigate("/apisix");
     };
 
     const prefixSelector = (
