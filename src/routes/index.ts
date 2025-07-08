@@ -17,7 +17,7 @@ export default [
             {
                 name: "Favorites",
                 icon: "HeartOutlined",
-                path: "/favorites/newTab:tabId",
+                path: "/favorites",
                 component: "connection/Favorites",
             },
             {
