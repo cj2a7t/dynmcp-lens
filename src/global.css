@@ -54,3 +54,17 @@ body {
         background-color: transparent !important;
     }
 }
+
+/* 全局表格字体统一为 12px */
+.ant-table {
+    font-size: 12px !important;
+}
+
+/* 子表格也受影响 */
+.ant-table-expanded-row .ant-table {
+    font-size: 12px !important;
+}
+
+.custom-layout {
+    background: white !important;
+}

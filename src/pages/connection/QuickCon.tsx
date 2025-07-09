@@ -1,30 +1,27 @@
 import { ConnectionData } from "@/apis/connection/healthz";
+import logo from "@/assets/dynmcp.png";
 import { LinkOutlined, StarOutlined } from "@ant-design/icons";
 import { invoke } from "@tauri-apps/api/core";
 import type { FormProps } from "antd";
-import { Button, Flex, Form, Input, Select } from "antd";
+import { Button, Flex, Form, Input, Select, Tooltip, Typography } from "antd";
 import { useFlatInject, useNavigate } from "umi";
 
 const { Option } = Select;
+const { Title } = Typography;
+
 export default () => {
     const navigate = useNavigate();
-
     const [store] = useFlatInject("connection");
 
     const onFinish: FormProps<ConnectionData>["onFinish"] = async (con) => {
-        if (!con.host) {
-            console.warn("Host is required");
-            return;
-        }
-
+        if (!con.host) return;
         try {
             const result = await invoke<any>("ping", {
                 params: {
-                    url: con.scheme + "://" + con.host + "/healthz",
+                    url: `${con.scheme}://${con.host}/healthz`,
                     api_key: con.api_key,
                 },
             });
-
             console.log("Ping response:", result);
         } catch (err) {
             console.error("Ping error:", err);
@@ -34,9 +31,9 @@ export default () => {
 
     const prefixSelector = (
         <Form.Item name="scheme" noStyle>
-            <Select style={{ width: 90 }} defaultValue={"http"}>
-                <Option value="https">https</Option>
+            <Select style={{ width: 80 }}>
                 <Option value="http">http</Option>
+                <Option value="https">https</Option>
             </Select>
         </Form.Item>
     );
@@ -46,79 +43,98 @@ export default () => {
             <div
                 style={{
                     width: "100%",
-                    height: 260,
-                    maxWidth: 600,
-                    padding: 35,
-                    backgroundColor: "#fafafa",
-                    boxShadow: "0 0 35px rgba(0, 0, 0, 0.1)",
+                    maxWidth: 500,
+                    padding: 12,
+                    borderRadius: 12,
+                    background: "#fff",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.05)",
+                    position: "relative",
                 }}
             >
+                {/* 标题 + Star */}
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 24,
+                    }}
+                >
+                    {/* LOGO 占位 */}
+                    <img
+                        src={logo}
+                        alt="logo"
+                        style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 6,
+                            marginRight: 12,
+                            objectFit: "contain",
+                        }}
+                    />
+                    <Title level={4} style={{ margin: 0, flex: 1 }}>
+                        Connect to dynmcp
+                    </Title>
+                    <Tooltip title="Mark as favorite">
+                        <Button
+                            type="text"
+                            icon={<StarOutlined />}
+                            style={{ color: "#ff4d4f" }}
+                        />
+                    </Tooltip>
+                </div>
+
                 <Form
-                    name="basic"
-                    labelCol={{ span: 6 }}
-                    wrapperCol={{ span: 16 }}
+                    name="connect"
+                    labelCol={{ span: 5 }}
+                    wrapperCol={{ span: 18 }}
                     onFinish={onFinish}
-                    autoComplete="off"
                     initialValues={{ scheme: "http" }}
                 >
                     <Form.Item<ConnectionData>
-                        label="Connection Name"
+                        label="Name"
                         name="name"
                         rules={[
-                            {
-                                required: true,
-                                message: "Please input connection name!",
-                            },
+                            { required: true, message: "Please input name" },
                         ]}
                     >
-                        <Input />
+                        <Input placeholder="e.g. dev-server" />
                     </Form.Item>
 
                     <Form.Item<ConnectionData>
                         label="Host"
                         name="host"
                         rules={[
-                            {
-                                required: true,
-                                message: "Please input dynmcp host!",
-                            },
+                            { required: true, message: "Please input host" },
                         ]}
                     >
-                        <Input addonBefore={prefixSelector} />
+                        <Input
+                            addonBefore={prefixSelector}
+                            placeholder="localhost:8000"
+                        />
                     </Form.Item>
 
                     <Form.Item<ConnectionData>
                         label="API Key"
                         name="api_key"
                         rules={[
-                            {
-                                required: true,
-                                message: "Please input dynmcp API key!",
-                            },
+                            { required: true, message: "Please input API Key" },
                         ]}
                     >
-                        <Input.Password />
+                        <Input.Password placeholder="sk-xxxxx" />
                     </Form.Item>
-                    <Form.Item wrapperCol={{ offset: 7, span: 16 }}>
-                        <Button
-                            size="small"
-                            style={{ width: 100 }}
-                            color="danger"
-                            variant="solid"
-                        >
-                            <StarOutlined />
-                            star
-                        </Button>
-                        <Button
-                            size="small"
-                            style={{ width: 100, marginLeft: 32 }}
-                            htmlType="submit"
-                            color="primary"
-                            variant="solid"
-                        >
-                            <LinkOutlined />
-                            connect
-                        </Button>
+
+                    <Form.Item wrapperCol={{ offset: 5, span: 18 }}>
+                        <Flex justify="end">
+                            <Button
+                                size="small"
+                                type="primary"
+                                icon={<LinkOutlined />}
+                                htmlType="submit"
+                                style={{ fontSize: 12 }}
+                            >
+                                Connect
+                            </Button>
+                        </Flex>
                     </Form.Item>
                 </Form>
             </div>
