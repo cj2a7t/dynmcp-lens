@@ -59,7 +59,6 @@ export default () => {
                         marginBottom: 24,
                     }}
                 >
-                    {/* LOGO 占位 */}
                     <img
                         src={logo}
                         alt="logo"
