@@ -1,32 +1,78 @@
-import logo from "@/assets/dynmcp.png";
 import {
     AppstoreOutlined,
-    DeleteOutlined,
     FileTextOutlined,
-    SaveOutlined,
+    PlusOutlined,
     ToolOutlined,
 } from "@ant-design/icons";
-import { Editor, loader } from "@monaco-editor/react";
-import { Button, Flex, Splitter, Tree, TreeDataNode, Typography } from "antd";
-import React from "react";
+import { loader } from "@monaco-editor/react";
+import { Splitter, Table, Tree, TreeDataNode } from "antd";
+import { ReactNode, useState } from "react";
 
-const Desc: React.FC<Readonly<{ text?: string | number }>> = (props) => (
-    <Flex justify="center" align="center" style={{ height: "100%" }}>
-        <Typography.Title
-            type="secondary"
-            level={5}
-            style={{ whiteSpace: "nowrap" }}
+interface ParentTitleProps {
+    label: string;
+    icon: ReactNode;
+    color: string;
+    onAdd: () => void;
+}
+
+export const ParentTitle: React.FC<ParentTitleProps> = ({
+    label,
+    icon,
+    color,
+    onAdd,
+}) => {
+    const [hovered, setHovered] = useState(false);
+
+    return (
+        <div
+            className="no-hover-bg"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingRight: 4,
+                width: "180px",
+                height: 24,
+            }}
         >
-            {props.text}
-        </Typography.Title>
-    </Flex>
-);
+            <div style={{ display: "flex", alignItems: "center" }}>
+                <span style={{ color, marginRight: 6 }}>{icon}</span>
+                <span style={{ fontSize: 12 }}>{label}</span>
+            </div>
+
+            {hovered && (
+                <div
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onAdd();
+                    }}
+                    style={{
+                        padding: "2px 4px",
+                        borderRadius: 4,
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                    }}
+                >
+                    <PlusOutlined style={{ fontSize: 10 }} />
+                </div>
+            )}
+        </div>
+    );
+};
 
 const treeData: TreeDataNode[] = [
     {
-        title: "IDS",
+        title: (
+            <ParentTitle
+                label="IDS"
+                icon={<AppstoreOutlined />}
+                color="#1890ff"
+                onAdd={() => {}}
+            />
+        ),
         key: "ids",
-        icon: <AppstoreOutlined style={{ color: "#1890ff" }} />,
         children: [
             {
                 key: "key1-1",
@@ -41,9 +87,15 @@ const treeData: TreeDataNode[] = [
         ],
     },
     {
-        title: "TDS",
+        title: (
+            <ParentTitle
+                label="TDS"
+                icon={<ToolOutlined />}
+                color="#52c41a"
+                onAdd={() => {}}
+            />
+        ),
         key: "tds",
-        icon: <ToolOutlined style={{ color: "#52c41a" }} />,
         children: [
             {
                 key: "key2-1",
@@ -92,12 +144,182 @@ loader.init().then((monaco) => {
         rules: [],
         colors: {
             "editor.background": "#f5f5f5",
-            // "editor.lineHighlightBackground": "#333333",
-            // "editorCursor.foreground": "#ff0000",
         },
     });
 });
 
+interface TDSx {
+    method: string;
+    path: string;
+}
+
+interface TDS {
+    id: string;
+    name: string;
+    description: string;
+    tds_ext_info: TDSx;
+}
+
+interface IDS {
+    id: string;
+    name: string;
+    tool_ids: string[];
+    tds_list: TDS[];
+}
+
+const dataSource: IDS[] = [
+    {
+        id: "ids-1",
+        name: "User APIs",
+        tool_ids: ["get_user", "delete_user"],
+        tds_list: [
+            {
+                id: "tds-1",
+                name: "Get User",
+                description: "Get user by ID",
+                tds_ext_info: {
+                    method: "GET",
+                    path: "/v1/users/:id",
+                },
+            },
+            {
+                id: "tds-2",
+                name: "Delete User",
+                description: "Delete user by ID",
+                tds_ext_info: {
+                    method: "DELETE",
+                    path: "/v1/users/:id",
+                },
+            },
+        ],
+    },
+    {
+        id: "ids-2",
+        name: "Email APIs",
+        tool_ids: ["get_email"],
+        tds_list: [
+            {
+                id: "tds-3",
+                name: "Get Email",
+                description: "",
+                tds_ext_info: {
+                    method: "GET",
+                    path: "/v1/emails/:email_id",
+                },
+            },
+        ],
+    },
+];
+
+// IDS 主表列
+const idsColumns = [
+    {
+        title: "ID",
+        dataIndex: "id",
+        key: "id",
+        width: 180,
+    },
+    {
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
+        width: 200,
+    },
+    {
+        title: "Tools",
+        key: "toolCount",
+        width: 100,
+        render: (_: any, record: IDS) => `Tools: ${record.tool_ids.length}`,
+    },
+];
+
+const methodColorMap: Record<string, string> = {
+    GET: "#0f9d58",
+    POST: "#ffa500",
+    PUT: "#3367d6",
+    PATCH: "#9c27b0",
+    DELETE: "#d32f2f",
+    HEAD: "#0f9d58",
+    OPTIONS: "#d81b60",
+};
+
+interface HttpMethodTagProps {
+    method: string;
+}
+
+const HttpMethodTag: React.FC<HttpMethodTagProps> = ({ method }) => {
+    const upperMethod = method.toUpperCase();
+    const color = methodColorMap[upperMethod] || "#9e9e9e"; // fallback: gray
+
+    return (
+        <span
+            style={{
+                color,
+                fontWeight: 600,
+                fontSize: 12,
+                fontFamily: "Menlo, Monaco, Consolas, monospace",
+                textTransform: "uppercase",
+                padding: "2px 6px",
+                lineHeight: "16px",
+            }}
+        >
+            {upperMethod}
+        </span>
+    );
+};
+
+// TDS 子表列（精简）
+const tdsColumns = [
+    {
+        title: "Name",
+        key: "name",
+        dataIndex: "name",
+        width: 150,
+    },
+    {
+        title: "Method",
+        key: "method",
+        width: 100,
+        render: (_: any, record: TDS) => {
+            return <HttpMethodTag method={record.tds_ext_info.method} />;
+        },
+    },
+    {
+        title: "Path",
+        key: "path",
+        width: 260,
+        render: (_: any, record: TDS) => record.tds_ext_info.path,
+    },
+    {
+        title: "Description",
+        key: "description",
+        width: 240,
+        render: (_: any, record: TDS) => record.description || "-",
+    },
+];
+
+const IDSTable: React.FC = () => {
+    return (
+        <Table
+            rowKey="id"
+            dataSource={dataSource}
+            columns={idsColumns}
+            expandable={{
+                expandedRowRender: (record: IDS) => (
+                    <Table
+                        rowKey="id"
+                        columns={tdsColumns}
+                        dataSource={record.tds_list}
+                        pagination={false}
+                        size="small"
+                    />
+                ),
+                rowExpandable: (record) => record.tds_list.length > 0,
+            }}
+            pagination={false}
+        />
+    );
+};
 export default () => {
     return (
         <Splitter>
@@ -184,7 +406,7 @@ export default () => {
                     />
                 </div> */}
                 {/* welcome */}
-                <div
+                {/* <div
                     style={{
                         display: "flex",
                         flexDirection: "column",
@@ -212,9 +434,10 @@ export default () => {
                     <div style={{ fontSize: 14, color: "#888", maxWidth: 480 }}>
                         A visual control plane for managing Dynamic MCP.
                     </div>
-                </div>
-                {/* list */}
-
+                </div> */}
+                {/* IDS list */}
+                <IDSTable />
+                {/* TDS list */}
             </Splitter.Panel>
         </Splitter>
     );
