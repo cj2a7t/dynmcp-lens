@@ -3,7 +3,7 @@ import logo from "@/assets/dynmcp.png";
 import { LinkOutlined, StarOutlined } from "@ant-design/icons";
 import { invoke } from "@tauri-apps/api/core";
 import type { FormProps } from "antd";
-import { Button, Flex, Form, Input, Select, Tooltip, Typography } from "antd";
+import { Button, Flex, Form, Input, Select, Typography } from "antd";
 import { useFlatInject, useNavigate } from "umi";
 
 const { Option } = Select;
@@ -51,35 +51,43 @@ export default () => {
                     position: "relative",
                 }}
             >
-                {/* 标题 + Star */}
                 <div
                     style={{
                         display: "flex",
                         alignItems: "center",
-                        marginBottom: 24,
+                        justifyContent: "space-between",
+                        marginBottom: 12,
                     }}
                 >
-                    <img
-                        src={logo}
-                        alt="logo"
-                        style={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: 6,
-                            marginRight: 12,
-                            objectFit: "contain",
-                        }}
-                    />
-                    <Title level={4} style={{ margin: 0, flex: 1 }}>
-                        Connect to dynmcp
-                    </Title>
-                    <Tooltip title="Mark as favorite">
-                        <Button
-                            type="text"
-                            icon={<StarOutlined />}
-                            style={{ color: "#ff4d4f" }}
+                    {/* 左侧：logo + title */}
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <Title level={5} style={{ margin: 0 }}>
+                            Connect to
+                        </Title>
+                        <img
+                            src={logo}
+                            alt="logo"
+                            style={{
+                                width: 48,
+                                height: 48,
+                                borderRadius: 6,
+                                marginLeft: 2,
+                            }}
                         />
-                    </Tooltip>
+                    </div>
+
+                    {/* 右侧：Star 按钮 */}
+                    <Button
+                        type="text"
+                        icon={
+                            <StarOutlined
+                                style={{
+                                    color: "#fadb14",
+                                }}
+                            />
+                        }
+                        style={{ color: "#ff4d4f" }}
+                    />
                 </div>
 
                 <Form
@@ -95,6 +103,7 @@ export default () => {
                         rules={[
                             { required: true, message: "Please input name" },
                         ]}
+                        style={{ marginBottom: 12 }}
                     >
                         <Input placeholder="e.g. dev-server" />
                     </Form.Item>
@@ -105,6 +114,7 @@ export default () => {
                         rules={[
                             { required: true, message: "Please input host" },
                         ]}
+                        style={{ marginBottom: 12 }}
                     >
                         <Input
                             addonBefore={prefixSelector}
@@ -118,11 +128,15 @@ export default () => {
                         rules={[
                             { required: true, message: "Please input API Key" },
                         ]}
+                        style={{ marginBottom: 12 }}
                     >
                         <Input.Password placeholder="sk-xxxxx" />
                     </Form.Item>
 
-                    <Form.Item wrapperCol={{ offset: 5, span: 18 }}>
+                    <Form.Item
+                        wrapperCol={{ offset: 5, span: 18 }}
+                        style={{ marginBottom: 8 }}
+                    >
                         <Flex justify="end">
                             <Button
                                 size="small"

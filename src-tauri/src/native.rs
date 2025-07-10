@@ -22,6 +22,8 @@ pub fn native_windows(window: &WebviewWindow) {
 
 #[cfg(target_os = "macos")]
 pub fn create_main_window(app: &AppHandle) -> WebviewWindow {
+    use tauri::{LogicalPosition, Position};
+
     #[cfg(target_os = "macos")]
     let style = tauri::TitleBarStyle::Overlay;
 
@@ -33,12 +35,13 @@ pub fn create_main_window(app: &AppHandle) -> WebviewWindow {
         "main", // the unique window label
         WebviewUrl::App("/quick_con".parse().unwrap()),
     )
+    .title("")
     .decorations(true)
     .resizable(true)
     .visible(true)
     .accept_first_mouse(true)
-    .hidden_title(true)
     .title_bar_style(style)
+    .traffic_light_position(LogicalPosition::new(12.0,28.0))
     .build()
     .expect("failed to build window");
 
