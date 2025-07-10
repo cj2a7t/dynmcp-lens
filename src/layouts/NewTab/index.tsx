@@ -3,9 +3,10 @@ import {
     ArrowLeftOutlined,
     ArrowRightOutlined,
     ReloadOutlined,
+    StarFilled,
     StarOutlined,
 } from "@ant-design/icons";
-import { Button, Flex, Input, Layout } from "antd";
+import { AutoComplete, Button, Flex, Input, Layout } from "antd";
 import { useEffect } from "react";
 import { Outlet, useLocation } from "umi";
 import HeaderTab from "./components/HeaderTab";
@@ -20,8 +21,43 @@ const LayoutFC = () => {
     }, [location]);
 
     const handleDragStart = (event: any) => {
-        event.preventDefault(); // 阻止默认文本选择行为
+        event.preventDefault();
     };
+    const renderItem = (name: string, url: string, isStarred?: boolean) => ({
+        value: url,
+        label: (
+            <div style={{ fontSize: 11, lineHeight: 1.4 }}>
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                    }}
+                >
+                    <span>{name}</span>
+                    {isStarred && <StarFilled style={{ color: "#fadb14" }} />}
+                </div>
+                <div style={{ color: "#888", fontSize: 11 }}>{url}</div>
+            </div>
+        ),
+    });
+
+    const options = [
+        {
+            label: <span style={{ fontSize: 11 }}>⭐ Starred Connections</span>,
+            options: [
+                renderItem("Production", "https://prod.dynmcp.com", true),
+                renderItem("Development", "https://dev.dynmcp.com", true),
+            ],
+        },
+        {
+            label: <span style={{ fontSize: 11 }}>🕑 Recent Connections</span>,
+            options: [
+                renderItem("Testing", "https://test.dynmcp.com"),
+                renderItem("Localhost", "http://localhost:8080"),
+            ],
+        },
+    ];
 
     return (
         <Layout className="custom-layout" style={{ minHeight: "100vh" }}>
@@ -30,7 +66,7 @@ const LayoutFC = () => {
                 onMouseDown={handleDragStart}
                 style={{
                     backgroundColor: "#f0f5ff",
-                    height: 45,
+                    height: 36,
                     userSelect: "none",
                 }}
             >
@@ -78,29 +114,50 @@ const LayoutFC = () => {
                         >
                             <ReloadOutlined />
                         </Button>
-                        <Input
-                            placeholder="Input APISIX connection: http(s)://$apisix_host/$connection_name/$admin_key"
-                            style={{
-                                border: "none",
-                                backgroundColor: "#f0f5ff",
-                                marginLeft: 10,
-                                marginRight: 15,
-                                height: 30,
-                                borderRadius: 10,
+                        <AutoComplete
+                            classNames={{
+                                popup: {
+                                    root: "certain-category-search-dropdown",
+                                },
                             }}
-                            suffix={
-                                <div>
-                                    <Button
-                                        style={{
-                                            border: "none",
-                                            backgroundColor: "transparent",
+                            style={{
+                                width: "100%",
+                                marginLeft: 10,
+                                marginRight: 20,
+                            }}
+                            options={options}
+                        >
+                            <Input
+                                placeholder="http(s)://dynmcp_domain/$api_key"
+                                style={{
+                                    border: "none",
+                                    backgroundColor: "#f0f5ff",
+                                    height: 30,
+                                    borderRadius: 10,
+                                }}
+                                suffix={
+                                    <div
+                                        onMouseDown={(e) => {
+                                            e.stopPropagation();
                                         }}
                                     >
-                                        <StarOutlined />
-                                    </Button>
-                                </div>
-                            }
-                        />
+                                        <Button
+                                            onClick={() => {}}
+                                            style={{
+                                                border: "none",
+                                                backgroundColor: "transparent",
+                                            }}
+                                        >
+                                            <StarOutlined
+                                                style={{
+                                                    color: "#fadb14",
+                                                }}
+                                            />
+                                        </Button>
+                                    </div>
+                                }
+                            />
+                        </AutoComplete>
                     </Flex>
                     <Content className="custom-layout">
                         <Outlet />

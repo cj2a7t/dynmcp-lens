@@ -57,6 +57,10 @@ const App: React.FC = () => {
         setActiveKey(newActiveKey);
     };
 
+    const handleDragStart = (event: any) => {
+        event.preventDefault();
+    };
+
     const onEdit = (
         targetKey: React.MouseEvent | React.KeyboardEvent | string,
         action: "add" | "remove"
@@ -70,6 +74,8 @@ const App: React.FC = () => {
 
     return (
         <Tabs
+            data-tauri-drag-region
+            onMouseDown={handleDragStart}
             type="editable-card"
             onChange={onChange}
             activeKey={activeKey}
