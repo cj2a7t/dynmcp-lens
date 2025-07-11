@@ -1,36 +1,23 @@
 export default [
     {
         path: "/",
-        component: '@/layouts/NewTab',
+        component: "@/layouts/TabLayout",
         isMenu: false,
         routes: [
             {
                 path: "/",
-                redirect: '/quick_con',
+                redirect: "/new_connection",
             },
             {
-                name: "New Connect",
-                icon: "ThunderboltOutlined",
-                path: "/quick_con",
-                component: "connection/QuickCon",
+                name: "New Connection",
+                path: "/new_connection",
+                component: "connection",
             },
             {
-                name: "Favorites",
-                icon: "HeartOutlined",
-                path: "/favorites",
-                component: "connection/Favorites",
+                name: "xDS",
+                path: "/xds",
+                component: "xds",
             },
-            {
-                name: "APISIX",
-                icon: "HeartOutlined",
-                path: "/apisix",
-                component: "apisix",
-            }
-        ]
+        ],
     },
-    {
-        path: "/login",
-        component: "login",
-        isMenu: false,
-    }
-]
+];
