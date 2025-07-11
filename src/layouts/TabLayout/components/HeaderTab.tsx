@@ -1,7 +1,7 @@
 import { Tabs } from "antd";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "umi";
-import "./CustomTab.css";
+import "./CustomTab.less";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
