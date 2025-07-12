@@ -1,4 +1,4 @@
-import { ConnectionData, healthz } from "@/apis/connection/healthz";
+import { ConnectionData, healthz } from "@/request/apis/connection/healthz";
 import { NaturFactory } from "@/utils/NaturFactory";
 
 const initState = {

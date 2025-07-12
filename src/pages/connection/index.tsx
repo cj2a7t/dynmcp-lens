@@ -1,5 +1,5 @@
-import { ConnectionData } from "@/apis/connection/healthz";
 import logo from "@/assets/dynmcp.png";
+import { ConnectionData } from "@/request/apis/connection/healthz";
 import { LinkOutlined, StarOutlined } from "@ant-design/icons";
 import { invoke } from "@tauri-apps/api/core";
 import type { FormProps } from "antd";
@@ -59,7 +59,6 @@ export default () => {
                         marginBottom: 12,
                     }}
                 >
-                    {/* 左侧：logo + title */}
                     <div style={{ display: "flex", alignItems: "center" }}>
                         <Title level={5} style={{ margin: 0 }}>
                             Connect to
@@ -76,7 +75,6 @@ export default () => {
                         />
                     </div>
 
-                    {/* 右侧：Star 按钮 */}
                     <Button
                         type="text"
                         icon={
