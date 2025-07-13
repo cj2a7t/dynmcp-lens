@@ -18,30 +18,41 @@ const App: React.FC = () => {
     useEffect(() => {
         const searchParams = new URLSearchParams(location.search);
         let tabKey = searchParams.get("tabKey");
-        let pathname = location.pathname;
-
-        if (pathname !== "/new_connection") {
-            if (!tabKey) {
-                tabKey = uuidv4();
-            }
-            nav(`/new_connection?tabKey=${tabKey}`, { replace: true });
-            return;
-        }
+        const pathname = location.pathname;
 
         if (!tabKey) {
             tabKey = uuidv4();
-            nav(`/new_connection?tabKey=${tabKey}`, { replace: true });
+            nav(`${pathname}?tabKey=${tabKey}`, { replace: true });
             return;
         }
 
         const exists = items.find((item) => item.key === tabKey);
+        const labelMap: Record<string, string> = {
+            "/new_connection": "New Connection",
+            "/xds": "xDS Overview",
+        };
+
+        const newLabel = labelMap[pathname] ?? "Untitled Tab";
+
         if (!exists) {
             const newTab = {
-                label: "New Connection",
+                label: newLabel,
                 key: tabKey,
-                path: `/new_connection?tabKey=${tabKey}`,
+                path: `${pathname}?tabKey=${tabKey}`,
             };
             setItems((prev) => [...prev, newTab]);
+        } else {
+            setItems((prev) =>
+                prev.map((item) =>
+                    item.key === tabKey
+                        ? {
+                              ...item,
+                              label: newLabel,
+                              path: `${pathname}?tabKey=${tabKey}`,
+                          }
+                        : item
+                )
+            );
         }
 
         setActiveKey(tabKey);

@@ -7,7 +7,7 @@ import {
     StarOutlined,
 } from "@ant-design/icons";
 import { AutoComplete, Button, Flex, Input, Layout } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "umi";
 import HeaderTab from "./components/HeaderTab";
 
@@ -15,6 +15,10 @@ const { Header, Content, Sider } = Layout;
 const LayoutFC = () => {
     const [store] = useFlatInject("global");
     const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const tabKey = searchParams.get("tabKey");
+    const [inputValue, setInputValue] = useState("");
+
     useEffect(() => {
         store.buildConSideMenuList();
         store.selectSideMenu(location.pathname);
@@ -126,6 +130,8 @@ const LayoutFC = () => {
                                 marginRight: 20,
                             }}
                             options={options}
+                            value={inputValue}
+                            onChange={(value) => setInputValue(value)}
                         >
                             <Input
                                 placeholder="http(s)://dynmcp_domain/$api_key"

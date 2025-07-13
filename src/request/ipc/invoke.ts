@@ -17,9 +17,16 @@ export interface InvokeResponse<T> {
 export const invokeSaveConnection = async (
     con: DynmcpConnection
 ): Promise<number> => {
+    const payload = {
+        ...con,
+        starred: con.starred ?? false,
+    };
+
     const res: InvokeResponse<number> = await invoke("save_dynmcp_connection", {
-        conn: con,
+        conn: payload,
     });
+
+    console.log("invokeSaveConnection res", res);
 
     if (res.code === 0 && res.data !== undefined) {
         return res.data;

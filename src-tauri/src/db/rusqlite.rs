@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::{Context, Result};
 use lazy_static::lazy_static;
-use log::info;
+use log::{error, info};
 use rusqlite::{Connection, Row};
 use tauri::{AppHandle, Manager};
 
@@ -79,8 +79,8 @@ impl DbManager {
             for sql in [
                 "CREATE TABLE IF NOT EXISTS tb_dynmcp_connection (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL UNIQUE,
-                    url TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    url TEXT NOT NULL UNIQUE,
                     api_key TEXT NOT NULL,
                     starred INTEGER NOT NULL DEFAULT 0
                 );",
@@ -99,30 +99,36 @@ impl DbManager {
 
     pub fn upsert(&self, ac: &DyncmcpConnection, handler: &AppHandle) -> Result<i64> {
         self.init(handler)?;
-        // 1. insett or update connection
-        self.connection
-            .execute(
-                "INSERT INTO tb_dynmcp_connection (name, url, api_key, starred)
-                VALUES (?1, ?2, ?3, ?4)
-                ON CONFLICT(url) DO UPDATE SET
-                name = excluded.name,
-                api_key = excluded.api_key,
-                starred = excluded.starred",
-                (&ac.name, &ac.url, &ac.api_key, ac.starred as i32),
-            )
-            .context("failed to insert or update connection")?;
+
+        // 1. insert or update connection
+        if let Err(e) = self.connection.execute(
+            "INSERT INTO tb_dynmcp_connection (name, url, api_key, starred)
+        VALUES (?1, ?2, ?3, ?4)
+        ON CONFLICT(url) DO UPDATE SET
+        name = excluded.name,
+        api_key = excluded.api_key,
+        starred = excluded.starred",
+            (&ac.name, &ac.url, &ac.api_key, ac.starred as i32),
+        ) {
+            error!(
+                "Failed to insert or update connection (url: {}): {}",
+                &ac.url, e
+            );
+            return Err(e).context("failed to insert or update connection");
+        }
 
         // 2. query the id of the inserted/updated connection
-        let id: i64 = self
-            .connection
-            .query_row(
-                "SELECT id FROM tb_dynmcp_connection WHERE url = ?1",
-                [&ac.url],
-                |row| row.get(0),
-            )
-            .context("failed to retrieve id after insert/update")?;
-
-        Ok(id)
+        match self.connection.query_row(
+            "SELECT id FROM tb_dynmcp_connection WHERE url = ?1",
+            [&ac.url],
+            |row| row.get(0),
+        ) {
+            Ok(id) => Ok(id),
+            Err(e) => {
+                error!("Failed to retrieve id for url {}: {}", &ac.url, e);
+                Err(e).context("failed to retrieve id after insert/update")
+            }
+        }
     }
 
     pub fn query_all(&self, handle: &AppHandle) -> Result<Vec<DyncmcpConnection>> {
