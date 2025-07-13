@@ -76,13 +76,16 @@ impl DbManager {
     fn init(&self, handler: &AppHandle) -> Result<()> {
         let state = handler.state::<SqlState>();
         if !state.0.load(std::sync::atomic::Ordering::Relaxed) {
-            for sql in ["CREATE TABLE IF NOT EXISTS tb_dynmcp_connection (
+            for sql in [
+                "CREATE TABLE IF NOT EXISTS tb_dynmcp_connection (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL UNIQUE,
-                    host TEXT NOT NULL,
-                    api_key TEXT NOT NULL
-                );"]
-            {
+                    url TEXT NOT NULL,
+                    api_key TEXT NOT NULL,
+                    starred INTEGER NOT NULL DEFAULT 0
+                );",
+                "CREATE INDEX IF NOT EXISTS idx_connection_url ON tb_dynmcp_connection (url);",
+            ] {
                 self.connection
                     .execute(sql, [])
                     .context("failed to execute init SQL")?;
@@ -94,13 +97,32 @@ impl DbManager {
         Ok(())
     }
 
-    pub fn insert(&self, ac: &DyncmcpConnection, handler: &AppHandle) -> Result<()> {
+    pub fn upsert(&self, ac: &DyncmcpConnection, handler: &AppHandle) -> Result<i64> {
         self.init(handler)?;
-        self.connection.execute(
-            "INSERT OR REPLACE INTO tb_dynmcp_connection (name, host, api_key) VALUES (?1, ?2, ?3)",
-            (&ac.name, &ac.url, &ac.api_key),
-        ).context("failed to insert connection")?;
-        Ok(())
+        // 1. insett or update connection
+        self.connection
+            .execute(
+                "INSERT INTO tb_dynmcp_connection (name, url, api_key, starred)
+                VALUES (?1, ?2, ?3, ?4)
+                ON CONFLICT(url) DO UPDATE SET
+                name = excluded.name,
+                api_key = excluded.api_key,
+                starred = excluded.starred",
+                (&ac.name, &ac.url, &ac.api_key, ac.starred as i32),
+            )
+            .context("failed to insert or update connection")?;
+
+        // 2. query the id of the inserted/updated connection
+        let id: i64 = self
+            .connection
+            .query_row(
+                "SELECT id FROM tb_dynmcp_connection WHERE url = ?1",
+                [&ac.url],
+                |row| row.get(0),
+            )
+            .context("failed to retrieve id after insert/update")?;
+
+        Ok(id)
     }
 
     pub fn query_all(&self, handle: &AppHandle) -> Result<Vec<DyncmcpConnection>> {
@@ -128,6 +150,7 @@ impl DbManager {
             name: row.get(1)?,
             url: row.get(2)?,
             api_key: row.get(3)?,
+            starred: row.get::<_, i32>(4)? != 0,
         })
     }
 }

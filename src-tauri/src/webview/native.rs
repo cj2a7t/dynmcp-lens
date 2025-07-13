@@ -35,11 +35,11 @@ pub fn create_main_window(app: &AppHandle) -> WebviewWindow {
         "main", // the unique window label
         WebviewUrl::App("/".parse().unwrap()),
     )
-    .title("")
     .decorations(true)
     .resizable(true)
     .visible(true)
-    .accept_first_mouse(true)
+    // .accept_first_mouse(true)
+    .hidden_title(true)
     .title_bar_style(style)
     .traffic_light_position(LogicalPosition::new(12.0,28.0))
     .build()

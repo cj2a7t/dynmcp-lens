@@ -10,17 +10,16 @@ use crate::{
 pub async fn save_dynmcp_connection(
     conn: DyncmcpConnection,
     handle: AppHandle,
-) -> InvokeResponse<()> {
+) -> InvokeResponse<i64> {
     // ping first to test the connection
     let ping_params: PingConParams = (&conn).into();
     let ping_result = ping(ping_params).await;
     if ping_result.code != 0 {
         return InvokeResponse::fail(format!("Connection test failed: {}", ping_result.message));
     }
-
     // save the connection
-    dynmcp_connection::save(&conn, &handle)
-        .map(|_| InvokeResponse::success(()))
+    dynmcp_connection::upsert(&conn, &handle)
+        .map(|res| InvokeResponse::success(res))
         .unwrap_or_else(|e| to_invoke_response(e))
 }
 

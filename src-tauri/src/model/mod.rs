@@ -7,6 +7,7 @@ pub struct DyncmcpConnection {
     pub name: String,
     pub url: String,
     pub api_key: String,
+    pub starred: bool,
 }
 
 #[derive(Debug, Deserialize)]
