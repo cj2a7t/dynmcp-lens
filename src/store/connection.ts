@@ -3,11 +3,11 @@ import { NaturFactory } from "@/utils/NaturFactory";
 import { TabData } from "./tabdata";
 
 const initState = {
-    conForm: {
+    tabConnection: {
         tabData: {},
     } as TabData<DynmcpConnection>,
 
-    conId: {
+    tabConnectionId: {
         tabData: {},
     } as TabData<number>,
 };
@@ -22,8 +22,8 @@ const actions = NaturFactory.actionsCreator(state)({
             const realKey = tabKey ?? "default";
             const id = await invokeSaveConnection(con);
             api.setState((s: State) => {
-                s.conForm.tabData[realKey] = con;
-                s.conId.tabData[realKey] = id;
+                s.tabConnection.tabData[realKey] = con;
+                s.tabConnectionId.tabData[realKey] = id;
             });
         },
 });
