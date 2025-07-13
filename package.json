@@ -21,10 +21,12 @@
     "great-async": "^1.0.6",
     "natur": "^3.0.1",
     "natur-immer": "^1.0.12",
+    "react-activation": "^0.13.4",
     "sass": "^1.79.3",
     "sass-loader": "^16.0.2",
     "umi": "^4.3.19",
-    "umi-request": "^1.4.0"
+    "umi-request": "^1.4.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.0.0-rc.18",
