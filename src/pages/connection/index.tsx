@@ -2,7 +2,7 @@ import logo from "@/assets/dynmcp.png";
 import { DynmcpConnection } from "@/request/ipc/invoke";
 import { LinkOutlined, StarOutlined } from "@ant-design/icons";
 import type { FormProps } from "antd";
-import { Button, Flex, Form, Input, Typography } from "antd";
+import { Button, Flex, Form, Input, message, Typography } from "antd";
 import KeepAlive from "react-activation";
 import { useFlatInject, useLocation, useNavigate } from "umi";
 import PrefixSelector from "./components/PrefixSelector";
@@ -17,9 +17,26 @@ export default () => {
 
     const [store] = useFlatInject("connection");
 
-    const onFinish: FormProps<DynmcpConnection>["onFinish"] = async (con) => {
-        await store.onFinishFrom(tabKey, con);
-        navigate("/xds");
+    const onFinish: FormProps<any>["onFinish"] = async (formData) => {
+        try {
+            const { scheme, url, ...rest } = formData;
+            const fullUrl = `${scheme}://${url}`;
+            const con: DynmcpConnection = {
+                ...rest,
+                url: fullUrl,
+                starred: formData.starred ?? false,
+            };
+            console.log("onFinish", con);
+            await store.onFinishFrom(tabKey, con);
+            navigate(`/xds?tabKey=${tabKey}`);
+        } catch (error) {
+            const errMsg =
+                error instanceof Error
+                    ? error.message
+                    : "unknown error while saving connection";
+            console.log(error);
+            message.error(errMsg);
+        }
     };
 
     return (
@@ -94,7 +111,11 @@ export default () => {
                             ]}
                             style={{ marginBottom: 12 }}
                         >
-                            <Input placeholder="e.g. dev-server" />
+                            <Input
+                                placeholder="e.g. dev-server"
+                                autoCapitalize="off"
+                                spellCheck={false}
+                            />
                         </Form.Item>
 
                         <Form.Item<DynmcpConnection>
@@ -111,6 +132,8 @@ export default () => {
                             <Input
                                 addonBefore={<PrefixSelector />}
                                 placeholder="localhost:8000"
+                                autoCapitalize="off"
+                                spellCheck={false}
                             />
                         </Form.Item>
 
@@ -125,7 +148,11 @@ export default () => {
                             ]}
                             style={{ marginBottom: 12 }}
                         >
-                            <Input.Password placeholder="sk-xxxxx" />
+                            <Input.Password
+                                placeholder="sk-xxxxx"
+                                autoCapitalize="off"
+                                spellCheck={false}
+                            />
                         </Form.Item>
 
                         <Form.Item
@@ -138,9 +165,7 @@ export default () => {
                                     type="primary"
                                     icon={<LinkOutlined />}
                                     style={{ fontSize: 12 }}
-                                    onClick={() => {
-                                        console.log(tabKey);
-                                    }}
+                                    htmlType="submit"
                                 >
                                     Connect
                                 </Button>

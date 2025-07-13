@@ -33,7 +33,7 @@ pub async fn query_all(handle: AppHandle) -> InvokeResponse<Vec<DyncmcpConnectio
 #[tauri::command]
 pub async fn ping(params: PingConParams) -> InvokeResponse<String> {
     let client = Client::new();
-    let mut req = client.get(&params.url);
+    let mut req = client.get(format!("{}/healthz", &params.url));
 
     if let Some(api_key) = params.api_key {
         req = req.header("api_key", api_key);
@@ -42,15 +42,33 @@ pub async fn ping(params: PingConParams) -> InvokeResponse<String> {
     let response = req.send().await;
     let result = match response {
         Ok(resp) => {
+            let status = resp.status();
+            log::info!("HTTP status: {}", status);
+            log::info!("Headers: {:#?}", resp.headers());
+
             let body = resp.text().await;
             match body {
-                Ok(text) => Ok(text),
-                Err(e) => Err(format!("Failed to read response body: {}", e)),
+                Ok(text) => {
+                    log::info!("Response body: {}", text);
+                    if status.is_success() {
+                        Ok(text)
+                    } else {
+                        Err(format!("Request failed with status {}: {}", status, text))
+                    }
+                }
+                Err(e) => {
+                    log::error!("Failed to read response body: {}", e);
+                    Err(format!("Failed to read response body: {}", e))
+                }
             }
         }
-        Err(e) => Err(format!("Failed to connect: {}", e)),
+        Err(e) => {
+            log::error!("Failed to send request: {}", e);
+            Err(format!("Failed to connect: {}", e))
+        }
     };
+
     result
         .map(InvokeResponse::success)
-        .unwrap_or_else(|e| InvokeResponse::fail(e))
+        .unwrap_or_else(InvokeResponse::fail)
 }

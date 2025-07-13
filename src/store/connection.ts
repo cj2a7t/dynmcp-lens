@@ -3,8 +3,13 @@ import { NaturFactory } from "@/utils/NaturFactory";
 import { TabData } from "./tabdata";
 
 const initState = {
-    conForm: {} as TabData<DynmcpConnection>,
-    conId: {} as TabData<number>,
+    conForm: {
+        tabData: {},
+    } as TabData<DynmcpConnection>,
+
+    conId: {
+        tabData: {},
+    } as TabData<number>,
 };
 
 const state = initState;
