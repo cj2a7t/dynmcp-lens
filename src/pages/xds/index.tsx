@@ -1,12 +1,15 @@
+import HttpMethodTag from "@/components/HttpMethodTag";
 import {
     AppstoreOutlined,
     FileTextOutlined,
     PlusOutlined,
     ToolOutlined,
 } from "@ant-design/icons";
-import { loader } from "@monaco-editor/react";
 import { Splitter, Table, Tree, TreeDataNode } from "antd";
 import { ReactNode, useState } from "react";
+import KeepAlive from "react-activation";
+import { useLocation } from "umi";
+import Overview from "./components/Overview";
 
 interface ParentTitleProps {
     label: string;
@@ -110,43 +113,6 @@ const treeData: TreeDataNode[] = [
         ],
     },
 ];
-const defaultValue = `{
-    "id": "tool_10",
-    "name": "Tool Name 10",
-    "description": "Description for tool 10",
-    "input_schema": {
-        "param1": {
-            "type": "string"
-        },
-        "param2": {
-            "type": "number"
-        }
-    },
-    "tds_ext_info": {
-        "domain": "api.example.com",
-        "method": "GET",
-        "path": "/v1/resource/10",
-        "required_params": {
-            "param1": "value_10",
-            "param2": 10
-        },
-        "ext_info": {
-            "auth_required": true,
-            "rate_limit": 9
-        }
-    }
-}`;
-
-loader.init().then((monaco) => {
-    monaco.editor.defineTheme("customTheme", {
-        base: "vs",
-        inherit: true,
-        rules: [],
-        colors: {
-            "editor.background": "#f5f5f5",
-        },
-    });
-});
 
 interface TDSx {
     method: string;
@@ -211,7 +177,6 @@ const dataSource: IDS[] = [
     },
 ];
 
-// IDS 主表列
 const idsColumns = [
     {
         title: "ID",
@@ -233,42 +198,6 @@ const idsColumns = [
     },
 ];
 
-const methodColorMap: Record<string, string> = {
-    GET: "#0f9d58",
-    POST: "#ffa500",
-    PUT: "#3367d6",
-    PATCH: "#9c27b0",
-    DELETE: "#d32f2f",
-    HEAD: "#0f9d58",
-    OPTIONS: "#d81b60",
-};
-
-interface HttpMethodTagProps {
-    method: string;
-}
-
-const HttpMethodTag: React.FC<HttpMethodTagProps> = ({ method }) => {
-    const upperMethod = method.toUpperCase();
-    const color = methodColorMap[upperMethod] || "#9e9e9e"; // fallback: gray
-
-    return (
-        <span
-            style={{
-                color,
-                fontWeight: 600,
-                fontSize: 12,
-                fontFamily: "Menlo, Monaco, Consolas, monospace",
-                textTransform: "uppercase",
-                padding: "2px 6px",
-                lineHeight: "16px",
-            }}
-        >
-            {upperMethod}
-        </span>
-    );
-};
-
-// TDS 子表列（精简）
 const tdsColumns = [
     {
         title: "Name",
@@ -302,6 +231,7 @@ const IDSTable: React.FC = () => {
     return (
         <Table
             rowKey="id"
+            size="small"
             dataSource={dataSource}
             columns={idsColumns}
             expandable={{
@@ -321,124 +251,47 @@ const IDSTable: React.FC = () => {
     );
 };
 export default () => {
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const tabKey = searchParams.get("tabKey") ?? "default";
+
     return (
-        <Splitter>
-            <Splitter.Panel defaultSize="20%" max="25%" min={"20%"}>
-                <div
-                    style={{
-                        height: "calc(100vh)",
-                        backgroundColor: "rgba(245, 245, 245, 0.8)",
-                        padding: 8,
-                        boxSizing: "border-box",
-                    }}
-                >
-                    <Tree
-                        className="custom-tree"
-                        checkable
-                        showIcon
-                        defaultExpandAll
-                        defaultSelectedKeys={["0-0-0"]}
-                        // showLine
-                        // switcherIcon={<DownOutlined />}
-                        treeData={treeData}
-                        style={{
-                            height: "calc(100vh - 120px)",
-                            backgroundColor: "rgba(245, 245, 245, 0.8)",
-                        }}
-                    />
-                </div>
-            </Splitter.Panel>
-            <Splitter.Panel>
-                {/* editor */}
-                {/* <div>
+        <KeepAlive name="xdsKeepalive" cacheKey={tabKey}>
+            <Splitter>
+                <Splitter.Panel defaultSize="20%" max="25%" min={"20%"}>
                     <div
                         style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            padding: "8px 12px",
-                            backgroundColor: "rgba(245, 245, 245, 0.8)", 
-                            borderBottom: "1px solid #eee",
+                            height: "calc(100vh)",
+                            backgroundColor: "rgba(245, 245, 245, 0.8)",
+                            padding: 8,
+                            boxSizing: "border-box",
                         }}
                     >
-                        <span style={{ fontSize: 12, fontWeight: 500 }}>
-                            Config JSON
-                        </span>
-
-                        <div>
-                            <Button
-                                size="small"
-                                type="default"
-                                danger
-                                icon={<DeleteOutlined />}
-                                style={{
-                                    marginRight: 12,
-                                    fontSize: 11,
-                                    height: 22,
-                                    padding: "0 8px",
-                                }}
-                                onClick={() => {}}
-                            >
-                                Delete
-                            </Button>
-
-                            <Button
-                                size="small"
-                                type="primary"
-                                icon={<SaveOutlined />}
-                                style={{
-                                    fontSize: 11,
-                                    height: 22,
-                                    padding: "0 10px",
-                                }}
-                                onClick={() => {}}
-                            >
-                                Save
-                            </Button>
-                        </div>
+                        <Tree
+                            className="custom-tree"
+                            checkable
+                            showIcon
+                            defaultExpandAll
+                            defaultSelectedKeys={["0-0-0"]}
+                            // showLine
+                            // switcherIcon={<DownOutlined />}
+                            treeData={treeData}
+                            style={{
+                                height: "calc(100vh - 120px)",
+                                backgroundColor: "rgba(245, 245, 245, 0.8)",
+                            }}
+                        />
                     </div>
+                </Splitter.Panel>
+                <Splitter.Panel>
+                    {/* <Editor /> */}
+                    <Overview />
 
-                    <Editor
-                        height="90vh"
-                        defaultLanguage="json"
-                        defaultValue={defaultValue}
-                        theme="customTheme"
-                    />
-                </div> */}
-                {/* welcome */}
-                {/* <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        textAlign: "center",
-                        padding: 24,
-                        color: "#555",
-                        height: "calc(75vh)",
-                    }}
-                >
-                    <img
-                        src={logo}
-                        alt="Dynamic MCP Logo"
-                        style={{
-                            width: 220,
-                            maxWidth: "80%",
-                        }}
-                    />
-
-                    <div style={{ fontSize: 18, fontWeight: 600 }}>
-                        Welcome to Dynamic MCP Lens 👋
-                    </div>
-
-                    <div style={{ fontSize: 14, color: "#888", maxWidth: 480 }}>
-                        A visual control plane for managing Dynamic MCP.
-                    </div>
-                </div> */}
-                {/* IDS list */}
-                <IDSTable />
-                {/* TDS list */}
-            </Splitter.Panel>
-        </Splitter>
+                    {/* IDS list */}
+                    {/* <IDSTable /> */}
+                    {/* TDS list */}
+                </Splitter.Panel>
+            </Splitter>
+        </KeepAlive>
     );
 };

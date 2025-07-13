@@ -7,22 +7,17 @@ import {
     StarOutlined,
 } from "@ant-design/icons";
 import { AutoComplete, Button, Flex, Input, Layout } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Outlet, useLocation } from "umi";
 import HeaderTab from "./components/HeaderTab";
 
-const { Header, Content, Sider } = Layout;
+const { Header, Content } = Layout;
 const LayoutFC = () => {
-    const [store] = useFlatInject("global");
+    const [store] = useFlatInject("connection");
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
-    const tabKey = searchParams.get("tabKey");
+    const tabKey = searchParams.get("tabKey") ?? "default";
     const [inputValue, setInputValue] = useState("");
-
-    useEffect(() => {
-        store.buildConSideMenuList();
-        store.selectSideMenu(location.pathname);
-    }, [location]);
 
     const handleDragStart = (event: any) => {
         event.preventDefault();
@@ -130,7 +125,10 @@ const LayoutFC = () => {
                                 marginRight: 20,
                             }}
                             options={options}
-                            value={inputValue}
+                            value={
+                                store.tabConnection.tabData[tabKey]?.url ||
+                                inputValue
+                            }
                             onChange={(value) => setInputValue(value)}
                         >
                             <Input
@@ -141,6 +139,9 @@ const LayoutFC = () => {
                                     height: 30,
                                     borderRadius: 10,
                                 }}
+                                disabled={
+                                    !!store.tabConnection.tabData[tabKey]?.url
+                                }
                                 suffix={
                                     <div
                                         onMouseDown={(e) => {
