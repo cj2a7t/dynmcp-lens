@@ -66,30 +66,19 @@ export default () => {
         {
             title: (
                 <ParentTitle
-                    label="IDS"
+                    label="iDS"
                     icon={<AppstoreOutlined />}
                     color="#1890ff"
                     onAdd={() => {}}
                 />
             ),
             key: "ids",
-            children: [
-                {
-                    key: "key1-1",
-                    title: "Github MCP Server",
-                    icon: <FileTextOutlined style={{ color: "#24292e" }} />,
-                },
-                {
-                    key: "key1-2",
-                    title: "Bmap MCP Server",
-                    icon: <FileTextOutlined style={{ color: "#24292e" }} />,
-                },
-            ],
+            children: [],
         },
         {
             title: (
                 <ParentTitle
-                    label="TDS"
+                    label="tDS"
                     icon={<ToolOutlined />}
                     color="#52c41a"
                     onAdd={() => {}}
