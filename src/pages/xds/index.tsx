@@ -1,8 +1,9 @@
 import { Splitter } from "antd";
 import KeepAlive from "react-activation";
 import { useLocation } from "umi";
-import IDSTable from "./components/IDSTable";
 import MenuTree from "./components/MenuTree";
+import TDSTable from "./components/TDSTable";
+import IDSTable from "./components/IDSTable";
 
 export default () => {
     const location = useLocation();
@@ -20,6 +21,7 @@ export default () => {
                     {/* <Overview /> */}
                     <IDSTable />
                     {/* TDS list */}
+                    {/* <TDSTable /> */}
                 </Splitter.Panel>
             </Splitter>
         </KeepAlive>
