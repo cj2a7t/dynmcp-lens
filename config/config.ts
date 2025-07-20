@@ -1,14 +1,12 @@
-import routes from '../src/routes';
 import { defineConfig } from "umi";
+import routes from "../src/routes";
 
 export default defineConfig({
     routes: routes,
-    npmClient: 'pnpm',
-    plugins: [
-        'umi-natur',
-    ],
+    npmClient: "pnpm",
+    plugins: ["umi-natur"],
     natur: {
-        useImmer: true
+        useImmer: true,
     },
     mfsu: false,
 });
