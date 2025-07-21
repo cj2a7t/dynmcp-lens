@@ -1,69 +1,27 @@
 import HttpMethodTag from "@/components/HttpMethodTag";
+import { IDSItem, TDSItem } from "@/types/xds";
+import { useFlatInject, useHttp } from "@/utils/hooks";
 import { Table } from "antd";
-
-interface TDSx {
-    method: string;
-    path: string;
-}
-
-interface TDS {
-    id: string;
-    name: string;
-    description: string;
-    tds_ext_info: TDSx;
-}
-
-interface IDS {
-    id: string;
-    name: string;
-    tool_ids: string[];
-    tds_list: TDS[];
-}
+import { useLocation } from "umi";
 
 export default () => {
-    const dataSource: IDS[] = [
-        {
-            id: "ids-1",
-            name: "User APIs",
-            tool_ids: ["get_user", "delete_user"],
-            tds_list: [
-                {
-                    id: "tds-1",
-                    name: "Get User",
-                    description: "Get user by ID",
-                    tds_ext_info: {
-                        method: "GET",
-                        path: "/v1/users/:id",
-                    },
-                },
-                {
-                    id: "tds-2",
-                    name: "Delete User",
-                    description: "Delete user by ID",
-                    tds_ext_info: {
-                        method: "DELETE",
-                        path: "/v1/users/:id",
-                    },
-                },
-            ],
-        },
-        {
-            id: "ids-2",
-            name: "Email APIs",
-            tool_ids: ["get_email"],
-            tds_list: [
-                {
-                    id: "tds-3",
-                    name: "Get Email",
-                    description: "",
-                    tds_ext_info: {
-                        method: "GET",
-                        path: "/v1/emails/:email_id",
-                    },
-                },
-            ],
-        },
-    ];
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const tabKey = searchParams.get("tabKey");
+
+    const [xdsStroe] = useFlatInject("xds");
+    const [connStore] = useFlatInject("connection");
+    const { mapConnection } = connStore;
+    const { onFetchIDS, onFetchTDS, mapIDS } = xdsStroe;
+
+    const { loading: loadingIDS } = useHttp(
+        () => onFetchIDS(tabKey, mapConnection(tabKey))
+        // { deps: [connStore.mapConnection(tabKey)] }
+    );
+    const { loading: loadingTDS } = useHttp(
+        () => onFetchTDS(tabKey, mapConnection(tabKey))
+        // { deps: [connStore.mapConnection(tabKey)] }
+    );
 
     const idsColumns = [
         {
@@ -82,7 +40,8 @@ export default () => {
             title: "Tools",
             key: "toolCount",
             width: 100,
-            render: (_: any, record: IDS) => `Tools: ${record.tool_ids.length}`,
+            render: (_: any, record: IDSItem) =>
+                `Tools: ${record.tool_ids.length}`,
         },
     ];
 
@@ -97,7 +56,7 @@ export default () => {
             title: "Method",
             key: "method",
             width: 100,
-            render: (_: any, record: TDS) => {
+            render: (_: any, record: TDSItem) => {
                 return <HttpMethodTag method={record.tds_ext_info.method} />;
             },
         },
@@ -105,13 +64,13 @@ export default () => {
             title: "Path",
             key: "path",
             width: 260,
-            render: (_: any, record: TDS) => record.tds_ext_info.path,
+            render: (_: any, record: TDSItem) => record.tds_ext_info.path,
         },
         {
             title: "Description",
             key: "description",
             width: 240,
-            render: (_: any, record: TDS) => record.description || "-",
+            render: (_: any, record: TDSItem) => record.description || "-",
         },
     ];
 
@@ -119,19 +78,21 @@ export default () => {
         <Table
             rowKey="id"
             size="small"
-            dataSource={dataSource}
+            dataSource={mapIDS(tabKey)}
             columns={idsColumns}
             expandable={{
-                expandedRowRender: (record: IDS) => (
+                expandedRowRender: (record: IDSItem) => (
                     <Table
                         rowKey="id"
                         columns={tdsColumns}
-                        dataSource={record.tds_list}
+                        dataSource={record.tds_items}
                         pagination={false}
                         size="small"
                     />
                 ),
-                rowExpandable: (record) => record.tds_list.length > 0,
+                rowExpandable: (record) =>
+                    Array.isArray(record.tds_items) &&
+                    record.tds_items.length > 0,
             }}
             pagination={false}
         />

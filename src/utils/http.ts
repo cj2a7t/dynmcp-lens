@@ -13,10 +13,22 @@ export type RequestOptions = {
 };
 
 const request = extend({
-    timeout: 10000,
+    timeout: 3 * 1000,
     credentials: "include",
     headers: {
         "Content-Type": "application/json",
+    },
+    errorHandler: (error: any) => {
+        if (error?.response) {
+            console.error(
+                `[HTTP Error] ${error.response.status}: ${error.message}`
+            );
+        } else if (error?.message) {
+            console.error(`[Request Error]: ${error.message}`);
+        } else {
+            console.error(`[Unknown Error]:`, error);
+        }
+        throw error;
     },
 });
 

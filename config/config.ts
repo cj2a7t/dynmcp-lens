@@ -9,4 +9,10 @@ export default defineConfig({
         useImmer: true,
     },
     mfsu: false,
+    proxy: {
+        "/admin": {
+            target: "http://localhost:8080",
+            changeOrigin: true,
+        },
+    },
 });
