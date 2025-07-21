@@ -18,6 +18,7 @@ const initState = {
 
 const state = initState;
 type State = typeof state;
+const createMap = NaturFactory.mapCreator(state);
 
 const actions = NaturFactory.actionsCreator(state)({
     onFetchTDS: (tabKey: TabKeyType, conn: DynmcpConnection) => async (api) => {
@@ -28,8 +29,11 @@ const actions = NaturFactory.actionsCreator(state)({
         });
     },
     onFetchIDS: (tabKey: TabKeyType, conn: DynmcpConnection) => async (api) => {
+        console.log(tabKey, conn);
         const realKey = tabKey ?? "default";
+        console.log("onFetchIDS=======>>>1", realKey);
         const res = await fetchIDS({ api_key: conn.api_key });
+        console.log("onFetchIDS=======>>>2", res);
         api.setState((s: State) => {
             s.iDS.tabData[realKey] = res;
         });
@@ -37,42 +41,39 @@ const actions = NaturFactory.actionsCreator(state)({
 });
 
 export const maps = {
-    mapIDS: [
+    mapIDS: createMap(
         (state: State) => state.iDS.tabData,
         (state: State) => state.tDS.tabData,
         (
             idsTabData: Record<string, IDSResponse>,
             tdsTabData: Record<string, TDSResponse>
-        ): TabData<IDSResponse> => {
-            const result: TabData<IDSResponse> = { tabData: {} };
-
-            for (const tabKey in idsTabData) {
-                const idsList = idsTabData[tabKey] ?? [];
-                const tdsList = tdsTabData[tabKey] ?? [];
-
+        ) => {
+            return (tabKey: TabKeyType): IDSResponse => {
+                const key = tabKey ?? "default";
+                const idsList = idsTabData[key] ?? [];
+                const tdsList = tdsTabData[key] ?? [];
                 const tdsMap = new Map<string, TDSItem>();
                 for (const tds of tdsList) {
                     tdsMap.set(tds.id, tds);
                 }
-
-                result.tabData[tabKey] = idsList.map((idsItem) => {
+                return idsList.map((idsItem) => {
                     const tds_items = idsItem.tool_ids
                         .map((tool_id) => tdsMap.get(tool_id))
                         .filter((item): item is TDSItem => !!item);
-
-                    return {
+                    const res = {
                         ...idsItem,
                         tds_items,
                     };
+                    console.log("mapIDS", res);
+                    return res;
                 });
-            }
-
-            return result;
-        },
-    ],
+            };
+        }
+    ),
 };
 
 export default {
+    name: "xds",
     state,
     actions,
     maps,

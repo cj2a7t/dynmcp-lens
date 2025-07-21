@@ -1,5 +1,5 @@
 import logo from "@/assets/dynmcp.png";
-import { DynmcpConnection } from "@/request/ipc/invoke";
+import { DynmcpConnection } from "@/types/connection";
 import { LinkOutlined, StarOutlined } from "@ant-design/icons";
 import type { FormProps } from "antd";
 import { Button, Flex, Form, Input, message, Typography } from "antd";
