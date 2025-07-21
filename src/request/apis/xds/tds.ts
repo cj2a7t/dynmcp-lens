@@ -1,5 +1,5 @@
+import { TDSResponse, xDSParam } from "@/types/xds";
 import { http } from "@/utils/http";
-import { TDSResponse, xDSParam } from "../../../types/xds";
 
 export const fetchTDS = async (params: xDSParam) => {
     const headers: Record<string, string> = {
