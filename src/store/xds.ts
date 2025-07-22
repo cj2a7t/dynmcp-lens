@@ -6,6 +6,13 @@ import { IDSResponse, TDSItem, TDSResponse } from "@/types/xds";
 import { NaturFactory } from "@/utils/NaturFactory";
 import { TabData } from "./tabdata";
 
+export enum VisiableComponent {
+    Editor = "Editor",
+    Overview = "Overview",
+    TDSTable = "TDSTable",
+    IDSTable = "IDSTable",
+}
+
 const initState = {
     tDS: {
         tabData: {},
@@ -14,6 +21,9 @@ const initState = {
     iDS: {
         tabData: {},
     } as TabData<IDSResponse>,
+    visiableComponent: {
+        tabData: {},
+    } as TabData<VisiableComponent>,
 };
 
 const state = initState;
@@ -38,6 +48,13 @@ const actions = NaturFactory.actionsCreator(state)({
             s.iDS.tabData[realKey] = res;
         });
     },
+    onVisiableComponent:
+        (tabKey: TabKeyType, component: VisiableComponent) => async (api) => {
+            const realKey = tabKey ?? "default";
+            api.setState((s: State) => {
+                s.visiableComponent.tabData[realKey] = component;
+            });
+        },
 });
 
 export const maps = {
@@ -67,6 +84,16 @@ export const maps = {
                     console.log("mapIDS", res);
                     return res;
                 });
+            };
+        }
+    ),
+    mapVisiableComponent: createMap(
+        (state: State) => state.visiableComponent.tabData,
+        (tabData: Record<string, VisiableComponent>) => {
+            return (tabKey: TabKeyType): VisiableComponent => {
+                const key = tabKey ?? "default";
+                const res = tabData[key] ?? VisiableComponent.Overview;
+                return res;
             };
         }
     ),
