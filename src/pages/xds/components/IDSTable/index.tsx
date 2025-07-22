@@ -76,6 +76,7 @@ export default () => {
 
     return (
         <Table
+            loading={loadingIDS || loadingTDS}
             rowKey="id"
             size="small"
             dataSource={mapIDS(tabKey)}
