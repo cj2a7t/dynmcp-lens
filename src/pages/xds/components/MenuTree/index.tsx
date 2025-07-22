@@ -25,6 +25,7 @@ export const ParentTitle: React.FC<ParentTitleProps> = ({
     return (
         <div
             className="no-hover-bg"
+            onClick={(e) => console.log("Parent clicked")}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             style={{
@@ -114,8 +115,6 @@ export default () => {
                 showIcon
                 defaultExpandAll
                 defaultSelectedKeys={["0-0-0"]}
-                // showLine
-                // switcherIcon={<DownOutlined />}
                 treeData={treeData}
                 style={{
                     height: "calc(100vh - 120px)",
