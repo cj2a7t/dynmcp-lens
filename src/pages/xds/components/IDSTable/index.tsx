@@ -1,14 +1,11 @@
 import HttpMethodTag from "@/components/HttpMethodTag";
 import { IDSItem, TDSItem } from "@/types/xds";
 import { useFlatInject, useHttp } from "@/utils/hooks";
+import { useTabKey } from "@/utils/tabkey";
 import { Table } from "antd";
-import { useLocation } from "umi";
 
 export default () => {
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const tabKey = searchParams.get("tabKey");
-
+    const tabKey = useTabKey();
     const [xdsStroe] = useFlatInject("xds");
     const [connStore] = useFlatInject("connection");
     const { mapConnection } = connStore;

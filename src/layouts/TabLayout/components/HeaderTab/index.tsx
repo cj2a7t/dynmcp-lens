@@ -1,3 +1,4 @@
+import { getTabKey } from "@/utils/tabkey";
 import { Tabs } from "antd";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "umi";
@@ -8,30 +9,26 @@ type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
 const App: React.FC = () => {
     const nav = useNavigate();
-    const location = useLocation();
 
     const [items, setItems] = useState<
         { label: string; key: string; path: string }[]
     >([]);
     const [activeKey, setActiveKey] = useState("");
+    const location = useLocation();
 
     useEffect(() => {
-        const searchParams = new URLSearchParams(location.search);
-        let tabKey = searchParams.get("tabKey");
         const pathname = location.pathname;
-
-        if (!tabKey) {
+        let tabKey = getTabKey(location.search);
+        if (!tabKey || tabKey == "") {
             tabKey = uuidv4();
             nav(`${pathname}?tabKey=${tabKey}`, { replace: true });
             return;
         }
-
         const exists = items.find((item) => item.key === tabKey);
         const labelMap: Record<string, string> = {
             "/new_connection": "New Connection",
             "/xds": "xDS Overview",
         };
-
         const newLabel = labelMap[pathname] ?? "Untitled Tab";
 
         if (!exists) {

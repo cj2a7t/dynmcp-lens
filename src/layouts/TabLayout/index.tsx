@@ -1,4 +1,5 @@
 import { useFlatInject } from "@/utils/hooks";
+import { useTabKey } from "@/utils/tabkey";
 import {
     ArrowLeftOutlined,
     ArrowRightOutlined,
@@ -8,15 +9,13 @@ import {
 } from "@ant-design/icons";
 import { AutoComplete, Button, Flex, Input, Layout } from "antd";
 import { useState } from "react";
-import { Outlet, useLocation } from "umi";
+import { Outlet } from "umi";
 import HeaderTab from "./components/HeaderTab";
 
 const { Header, Content } = Layout;
 const LayoutFC = () => {
     const [store] = useFlatInject("connection");
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const tabKey = searchParams.get("tabKey") ?? "default";
+    const tabKey = useTabKey();
     const [inputValue, setInputValue] = useState("");
 
     const handleDragStart = (event: any) => {
