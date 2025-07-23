@@ -1,3 +1,5 @@
+import { VisiableComponent } from "@/store/xds";
+import { useFlatInject } from "@/utils/hooks";
 import {
     AppstoreOutlined,
     FileTextOutlined,
@@ -6,12 +8,14 @@ import {
 } from "@ant-design/icons";
 import { Tree, TreeDataNode } from "antd";
 import { ReactNode, useState } from "react";
+import { useLocation } from "umi";
 
 interface ParentTitleProps {
     label: string;
     icon: ReactNode;
     color: string;
     onAdd: () => void;
+    onClick: () => void;
 }
 
 export const ParentTitle: React.FC<ParentTitleProps> = ({
@@ -19,13 +23,16 @@ export const ParentTitle: React.FC<ParentTitleProps> = ({
     icon,
     color,
     onAdd,
+    onClick,
 }) => {
     const [hovered, setHovered] = useState(false);
 
     return (
         <div
             className="no-hover-bg"
-            onClick={(e) => console.log("Parent clicked")}
+            onClick={(e) => {
+                onClick();
+            }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
             style={{
@@ -63,6 +70,13 @@ export const ParentTitle: React.FC<ParentTitleProps> = ({
 };
 
 export default () => {
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const tabKey = searchParams.get("tabKey") ?? "default";
+
+    const [xdsStore] = useFlatInject("xds");
+    const { onVisiableComponent } = xdsStore;
+
     const treeData: TreeDataNode[] = [
         {
             title: (
@@ -70,7 +84,12 @@ export default () => {
                     label="iDS"
                     icon={<AppstoreOutlined />}
                     color="#1890ff"
-                    onAdd={() => {}}
+                    onAdd={() =>
+                        onVisiableComponent(tabKey, VisiableComponent.Editor)
+                    }
+                    onClick={() =>
+                        onVisiableComponent(tabKey, VisiableComponent.IDSTable)
+                    }
                 />
             ),
             key: "ids",
@@ -82,7 +101,12 @@ export default () => {
                     label="tDS"
                     icon={<ToolOutlined />}
                     color="#52c41a"
-                    onAdd={() => {}}
+                    onAdd={() =>
+                        onVisiableComponent(tabKey, VisiableComponent.Editor)
+                    }
+                    onClick={() =>
+                        onVisiableComponent(tabKey, VisiableComponent.TDSTable)
+                    }
                 />
             ),
             key: "tds",
