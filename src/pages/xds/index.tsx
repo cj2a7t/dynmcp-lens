@@ -1,8 +1,8 @@
 import { VisiableComponent } from "@/store/xds";
 import { useFlatInject } from "@/utils/hooks";
+import { useTabKey } from "@/utils/tabkey";
 import { Splitter } from "antd";
 import KeepAlive from "react-activation";
-import { useLocation } from "umi";
 import Editor from "./components/Editor";
 import IDSTable from "./components/IDSTable";
 import MenuTree from "./components/MenuTree";
@@ -17,10 +17,7 @@ const component2ReactNode: Record<VisiableComponent, React.ReactNode> = {
 };
 
 export default () => {
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const tabKey = searchParams.get("tabKey") ?? "default";
-
+    let tabKey = useTabKey();
     const [xdsStore] = useFlatInject("xds");
     const { mapVisiableComponent } = xdsStore;
 

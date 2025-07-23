@@ -1,5 +1,6 @@
 import { VisiableComponent } from "@/store/xds";
 import { useFlatInject } from "@/utils/hooks";
+import { useTabKey } from "@/utils/tabkey";
 import {
     AppstoreOutlined,
     FileTextOutlined,
@@ -8,7 +9,6 @@ import {
 } from "@ant-design/icons";
 import { Tree, TreeDataNode } from "antd";
 import { ReactNode, useState } from "react";
-import { useLocation } from "umi";
 
 interface ParentTitleProps {
     label: string;
@@ -70,10 +70,7 @@ export const ParentTitle: React.FC<ParentTitleProps> = ({
 };
 
 export default () => {
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const tabKey = searchParams.get("tabKey") ?? "default";
-
+    const tabKey = useTabKey();
     const [xdsStore] = useFlatInject("xds");
     const { onVisiableComponent } = xdsStore;
 

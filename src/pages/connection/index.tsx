@@ -1,20 +1,18 @@
 import logo from "@/assets/dynmcp.png";
 import { DynmcpConnection } from "@/types/connection";
+import { useTabKey } from "@/utils/tabkey";
 import { LinkOutlined, StarOutlined } from "@ant-design/icons";
 import type { FormProps } from "antd";
 import { Button, Flex, Form, Input, message, Typography } from "antd";
 import KeepAlive from "react-activation";
-import { useFlatInject, useLocation, useNavigate } from "umi";
+import { useFlatInject, useNavigate } from "umi";
 import PrefixSelector from "./components/PrefixSelector";
 
 const { Title } = Typography;
 
 export default () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const tabKey = searchParams.get("tabKey");
-
+    let tabKey = useTabKey();
     const [store] = useFlatInject("connection");
 
     const onFinish: FormProps<any>["onFinish"] = async (formData) => {
