@@ -25,3 +25,15 @@ export type TDSItem = {
     tds_ext_info: TDSExtInfo;
 };
 export type TDSResponse = TDSItem[];
+
+export enum VisiableComponent {
+    Editor = "Editor",
+    Overview = "Overview",
+    TDSTable = "TDSTable",
+    IDSTable = "IDSTable",
+}
+
+export type VisiableData = {
+    value?: string;
+    component: VisiableComponent;
+};

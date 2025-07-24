@@ -1,4 +1,4 @@
-import { VisiableComponent } from "@/store/xds";
+import { VisiableComponent } from "@/types/xds";
 import { useFlatInject } from "@/utils/hooks";
 import { useTabKey } from "@/utils/tabkey";
 import {
@@ -72,7 +72,7 @@ export const ParentTitle: React.FC<ParentTitleProps> = ({
 export default () => {
     const tabKey = useTabKey();
     const [xdsStore] = useFlatInject("xds");
-    const { onVisiableComponent } = xdsStore;
+    const { onVisiableData } = xdsStore;
 
     const treeData: TreeDataNode[] = [
         {
@@ -82,10 +82,14 @@ export default () => {
                     icon={<AppstoreOutlined />}
                     color="#1890ff"
                     onAdd={() =>
-                        onVisiableComponent(tabKey, VisiableComponent.Editor)
+                        onVisiableData(tabKey, {
+                            component: VisiableComponent.Editor,
+                        })
                     }
                     onClick={() =>
-                        onVisiableComponent(tabKey, VisiableComponent.IDSTable)
+                        onVisiableData(tabKey, {
+                            component: VisiableComponent.IDSTable,
+                        })
                     }
                 />
             ),
@@ -99,10 +103,14 @@ export default () => {
                     icon={<ToolOutlined />}
                     color="#52c41a"
                     onAdd={() =>
-                        onVisiableComponent(tabKey, VisiableComponent.Editor)
+                        onVisiableData(tabKey, {
+                            component: VisiableComponent.Editor,
+                        })
                     }
                     onClick={() =>
-                        onVisiableComponent(tabKey, VisiableComponent.TDSTable)
+                        onVisiableData(tabKey, {
+                            component: VisiableComponent.TDSTable,
+                        })
                     }
                 />
             ),

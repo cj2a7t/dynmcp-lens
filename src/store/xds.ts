@@ -2,16 +2,15 @@ import { fetchIDS } from "@/request/apis/xds/ids";
 import { fetchTDS } from "@/request/apis/xds/tds";
 import { DynmcpConnection } from "@/types/connection";
 import { TabKeyType } from "@/types/tab";
-import { IDSResponse, TDSItem, TDSResponse } from "@/types/xds";
+import {
+    IDSResponse,
+    TDSItem,
+    TDSResponse,
+    VisiableComponent,
+    VisiableData,
+} from "@/types/xds";
 import { NaturFactory } from "@/utils/NaturFactory";
 import { TabData } from "./tabdata";
-
-export enum VisiableComponent {
-    Editor = "Editor",
-    Overview = "Overview",
-    TDSTable = "TDSTable",
-    IDSTable = "IDSTable",
-}
 
 const initState = {
     tDS: {
@@ -21,9 +20,9 @@ const initState = {
     iDS: {
         tabData: {},
     } as TabData<IDSResponse>,
-    visiableComponent: {
+    visiableData: {
         tabData: {},
-    } as TabData<VisiableComponent>,
+    } as TabData<VisiableData>,
 };
 
 const state = initState;
@@ -39,22 +38,18 @@ const actions = NaturFactory.actionsCreator(state)({
         });
     },
     onFetchIDS: (tabKey: TabKeyType, conn: DynmcpConnection) => async (api) => {
-        console.log(tabKey, conn);
         const realKey = tabKey ?? "default";
-        console.log("onFetchIDS=======>>>1", realKey);
         const res = await fetchIDS({ api_key: conn.api_key });
-        console.log("onFetchIDS=======>>>2", res);
         api.setState((s: State) => {
             s.iDS.tabData[realKey] = res;
         });
     },
-    onVisiableComponent:
-        (tabKey: TabKeyType, component: VisiableComponent) => async (api) => {
-            const realKey = tabKey ?? "default";
-            api.setState((s: State) => {
-                s.visiableComponent.tabData[realKey] = component;
-            });
-        },
+    onVisiableData: (tabKey: TabKeyType, data: VisiableData) => async (api) => {
+        const realKey = tabKey ?? "default";
+        api.setState((s: State) => {
+            s.visiableData.tabData[realKey] = data;
+        });
+    },
 });
 
 export const maps = {
@@ -87,12 +82,15 @@ export const maps = {
             };
         }
     ),
-    mapVisiableComponent: createMap(
-        (state: State) => state.visiableComponent.tabData,
-        (tabData: Record<string, VisiableComponent>) => {
-            return (tabKey: TabKeyType): VisiableComponent => {
+    mapVisiableData: createMap(
+        (state: State) => state.visiableData.tabData,
+        (tabData: Record<string, VisiableData>) => {
+            return (tabKey: TabKeyType): VisiableData => {
                 const key = tabKey ?? "default";
-                const res = tabData[key] ?? VisiableComponent.Overview;
+                const defaultData: VisiableData = {
+                    component: VisiableComponent.Overview,
+                };
+                const res = tabData[key] ?? defaultData;
                 return res;
             };
         }
