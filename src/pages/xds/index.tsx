@@ -1,4 +1,4 @@
-import { VisiableComponent } from "@/store/xds";
+import { VisiableComponent } from "@/types/xds";
 import { useFlatInject } from "@/utils/hooks";
 import { useTabKey } from "@/utils/tabkey";
 import { Splitter } from "antd";
@@ -9,17 +9,22 @@ import MenuTree from "./components/MenuTree";
 import Overview from "./components/Overview";
 import TDSTable from "./components/TDSTable";
 
-const component2ReactNode: Record<VisiableComponent, React.ReactNode> = {
-    [VisiableComponent.Editor]: <Editor />,
-    [VisiableComponent.Overview]: <Overview />,
-    [VisiableComponent.TDSTable]: <TDSTable />,
-    [VisiableComponent.IDSTable]: <IDSTable />,
+const component2ReactNode: Record<
+    VisiableComponent,
+    (data: string) => React.ReactNode
+> = {
+    [VisiableComponent.Editor]: (data) => <Editor value={data} />,
+    [VisiableComponent.Overview]: (_) => <Overview />,
+    [VisiableComponent.TDSTable]: (_) => <TDSTable />,
+    [VisiableComponent.IDSTable]: (_) => <IDSTable />,
 };
 
 export default () => {
     let tabKey = useTabKey();
     const [xdsStore] = useFlatInject("xds");
-    const { mapVisiableComponent } = xdsStore;
+    const { mapVisiableData } = xdsStore;
+
+    const visibleData = mapVisiableData(tabKey).component;
 
     return (
         <KeepAlive name="xdsKeepalive" cacheKey={tabKey}>
@@ -28,7 +33,7 @@ export default () => {
                     <MenuTree />
                 </Splitter.Panel>
                 <Splitter.Panel>
-                    {component2ReactNode[mapVisiableComponent(tabKey)]}
+                    {component2ReactNode[visibleData](visibleData)}
                 </Splitter.Panel>
             </Splitter>
         </KeepAlive>

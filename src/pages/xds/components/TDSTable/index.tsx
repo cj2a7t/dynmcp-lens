@@ -1,4 +1,6 @@
 import HttpMethodTag from "@/components/HttpMethodTag";
+import { useFlatInject, useHttp } from "@/utils/hooks";
+import { useTabKey } from "@/utils/tabkey";
 import { Table } from "antd";
 
 interface TDSx {
@@ -14,26 +16,15 @@ interface TDS {
 }
 
 export default () => {
-    const dataSource: TDS[] = [
-        {
-            id: "tds-1",
-            name: "Get User",
-            description: "Get user by ID",
-            tds_ext_info: {
-                method: "GET",
-                path: "/v1/users/:id",
-            },
-        },
-        {
-            id: "tds-2",
-            name: "Delete User",
-            description: "Delete user by ID",
-            tds_ext_info: {
-                method: "DELETE",
-                path: "/v1/users/:id",
-            },
-        },
-    ];
+    const tabKey = useTabKey();
+    const [xdsStroe] = useFlatInject("xds");
+    const [connStore] = useFlatInject("connection");
+    const { mapConnection } = connStore;
+    const { onFetchTDS } = xdsStroe;
+
+    const { loading: loadingTDS } = useHttp(() =>
+        onFetchTDS(tabKey, mapConnection(tabKey))
+    );
 
     const tdsColumns = [
         {
@@ -66,9 +57,10 @@ export default () => {
 
     return (
         <Table
+            loading={loadingTDS}
             rowKey="id"
             size="small"
-            dataSource={dataSource}
+            dataSource={xdsStroe.tDS.tabData[tabKey]}
             columns={tdsColumns}
             pagination={false}
         />

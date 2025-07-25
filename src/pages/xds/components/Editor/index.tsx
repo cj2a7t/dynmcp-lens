@@ -7,10 +7,12 @@ import styles from "./index.module.less";
 
 const defaultValue = `{}`;
 
-export default () => {
+export default ({ value }: { value: string }) => {
     useEffect(() => {
         initMonacoTheme();
     }, []);
+
+    
 
     return (
         <div>

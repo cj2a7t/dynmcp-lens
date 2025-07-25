@@ -1,5 +1,5 @@
-import { VisiableComponent } from "@/store/xds";
-import { useFlatInject } from "@/utils/hooks";
+import { VisiableComponent } from "@/types/xds";
+import { useFlatInject, useHttp } from "@/utils/hooks";
 import { useTabKey } from "@/utils/tabkey";
 import {
     AppstoreOutlined,
@@ -7,8 +7,9 @@ import {
     PlusOutlined,
     ToolOutlined,
 } from "@ant-design/icons";
-import { Tree, TreeDataNode } from "antd";
+import { Spin, Tree, TreeDataNode } from "antd";
 import { ReactNode, useState } from "react";
+import styles from "./index.module.less";
 
 interface ParentTitleProps {
     label: string;
@@ -72,7 +73,16 @@ export const ParentTitle: React.FC<ParentTitleProps> = ({
 export default () => {
     const tabKey = useTabKey();
     const [xdsStore] = useFlatInject("xds");
-    const { onVisiableComponent } = xdsStore;
+    const { onVisiableData, onFetchIDS, onFetchTDS } = xdsStore;
+    const [connStore] = useFlatInject("connection");
+    const { mapConnection } = connStore;
+
+    const { loading: loadingIDS } = useHttp(() =>
+        onFetchIDS(tabKey, mapConnection(tabKey))
+    );
+    const { loading: loadingTDS } = useHttp(() =>
+        onFetchTDS(tabKey, mapConnection(tabKey))
+    );
 
     const treeData: TreeDataNode[] = [
         {
@@ -82,15 +92,24 @@ export default () => {
                     icon={<AppstoreOutlined />}
                     color="#1890ff"
                     onAdd={() =>
-                        onVisiableComponent(tabKey, VisiableComponent.Editor)
+                        onVisiableData(tabKey, {
+                            component: VisiableComponent.Editor,
+                        })
                     }
                     onClick={() =>
-                        onVisiableComponent(tabKey, VisiableComponent.IDSTable)
+                        onVisiableData(tabKey, {
+                            component: VisiableComponent.IDSTable,
+                        })
                     }
                 />
             ),
             key: "ids",
-            children: [],
+            children:
+                xdsStore.iDS.tabData[tabKey]?.map((item) => ({
+                    title: item.name,
+                    key: item.id,
+                    icon: <FileTextOutlined />,
+                })) ?? [],
         },
         {
             title: (
@@ -99,49 +118,48 @@ export default () => {
                     icon={<ToolOutlined />}
                     color="#52c41a"
                     onAdd={() =>
-                        onVisiableComponent(tabKey, VisiableComponent.Editor)
+                        onVisiableData(tabKey, {
+                            component: VisiableComponent.Editor,
+                        })
                     }
                     onClick={() =>
-                        onVisiableComponent(tabKey, VisiableComponent.TDSTable)
+                        onVisiableData(tabKey, {
+                            component: VisiableComponent.TDSTable,
+                        })
                     }
                 />
             ),
             key: "tds",
-            children: [
-                {
-                    key: "key2-1",
-                    title: "Github Top Languages",
-                    icon: <FileTextOutlined style={{ color: "#24292e" }} />,
-                },
-                {
-                    key: "key2-2",
-                    title: "Get Top Repositories",
-                    icon: <FileTextOutlined style={{ color: "#24292e" }} />,
-                },
-            ],
+            children:
+                xdsStore.tDS.tabData[tabKey]?.map((item) => ({
+                    title: item.name,
+                    key: item.id,
+                    icon: <FileTextOutlined />,
+                })) ?? [],
         },
     ];
     return (
-        <div
-            style={{
-                height: "calc(100vh)",
-                backgroundColor: "rgba(245, 245, 245, 0.8)",
-                padding: 8,
-                boxSizing: "border-box",
-            }}
-        >
-            <Tree
-                className="custom-tree"
-                checkable
-                showIcon
-                defaultExpandAll
-                defaultSelectedKeys={["0-0-0"]}
-                treeData={treeData}
+        <Spin spinning={loadingIDS || loadingTDS}>
+            <div
                 style={{
-                    height: "calc(100vh - 120px)",
+                    height: "calc(100vh)",
                     backgroundColor: "rgba(245, 245, 245, 0.8)",
+                    padding: 8,
+                    boxSizing: "border-box",
                 }}
-            />
-        </div>
+            >
+                <Tree
+                    className={styles.tree}
+                    checkable
+                    showIcon
+                    defaultExpandAll
+                    treeData={treeData}
+                    style={{
+                        height: "calc(100vh - 120px)",
+                        backgroundColor: "rgba(245, 245, 245, 0.8)",
+                    }}
+                />
+            </div>
+        </Spin>
     );
 };
