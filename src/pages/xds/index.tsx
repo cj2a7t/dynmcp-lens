@@ -13,7 +13,7 @@ const component2ReactNode: Record<
     VisiableComponent,
     (data: string) => React.ReactNode
 > = {
-    [VisiableComponent.Editor]: (data) => <Editor value={data} />,
+    [VisiableComponent.Editor]: (_) => <Editor />,
     [VisiableComponent.Overview]: (_) => <Overview />,
     [VisiableComponent.TDSTable]: (_) => <TDSTable />,
     [VisiableComponent.IDSTable]: (_) => <IDSTable />,
@@ -24,7 +24,7 @@ export default () => {
     const [xdsStore] = useFlatInject("xds");
     const { mapVisiableData } = xdsStore;
 
-    const visibleData = mapVisiableData(tabKey).component;
+    const visibleData = mapVisiableData(tabKey);
 
     return (
         <KeepAlive name="xdsKeepalive" cacheKey={tabKey}>
@@ -33,7 +33,9 @@ export default () => {
                     <MenuTree />
                 </Splitter.Panel>
                 <Splitter.Panel>
-                    {component2ReactNode[visibleData](visibleData)}
+                    {component2ReactNode[visibleData.component](
+                        visibleData.value ?? ""
+                    )}
                 </Splitter.Panel>
             </Splitter>
         </KeepAlive>
