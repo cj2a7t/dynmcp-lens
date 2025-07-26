@@ -1,8 +1,9 @@
-import { fetchIDS } from "@/request/apis/xds/ids";
-import { fetchTDS } from "@/request/apis/xds/tds";
+import { deleteIDS, fetchIDS, putIDS } from "@/request/apis/xds/ids";
+import { deleteTDS, fetchTDS, putTDS } from "@/request/apis/xds/tds";
 import { DynmcpConnection } from "@/types/connection";
 import { TabKeyType } from "@/types/tab";
 import {
+    IDSItem,
     IDSResponse,
     TDSItem,
     TDSResponse,
@@ -23,6 +24,14 @@ const initState = {
     visiableData: {
         tabData: {},
     } as TabData<VisiableData>,
+    refresh: {
+        tabData: {},
+    } as TabData<Boolean>,
+};
+
+const DEFULT_VISIABLE_DATA: VisiableData = {
+    component: VisiableComponent.Overview,
+    scene: "overview",
 };
 
 const state = initState;
@@ -50,6 +59,61 @@ const actions = NaturFactory.actionsCreator(state)({
             s.visiableData.tabData[realKey] = data;
         });
     },
+    onEditVisiableValue: (tabKey: TabKeyType, value: string) => async (api) => {
+        const realKey = tabKey ?? "default";
+        api.setState((s: State) => {
+            if (!s.visiableData.tabData[realKey]) {
+                s.visiableData.tabData[realKey] = {} as VisiableData;
+            }
+            s.visiableData.tabData[realKey].value = value;
+        });
+    },
+    onPutTDS: (tabKey: TabKeyType, conn: DynmcpConnection) => async (api) => {
+        const realKey = tabKey ?? "default";
+        const state = api.getState();
+        const editorBody = state.visiableData.tabData[realKey].value;
+        const body: TDSItem = JSON.parse(editorBody ?? "");
+        await putTDS({ api_key: conn.api_key }, body);
+        api.setState((s: State) => {
+            s.refresh.tabData[realKey] = !s.refresh.tabData[realKey];
+            s.visiableData.tabData[realKey] = DEFULT_VISIABLE_DATA;
+        });
+    },
+    onPutIDS: (tabKey: TabKeyType, conn: DynmcpConnection) => async (api) => {
+        const realKey = tabKey ?? "default";
+        const state = api.getState();
+        const editorBody = state.visiableData.tabData[realKey].value;
+        const body: IDSItem = JSON.parse(editorBody ?? "");
+        await putIDS({ api_key: conn.api_key }, body);
+        api.setState((s: State) => {
+            s.refresh.tabData[realKey] = !s.refresh.tabData[realKey];
+            s.visiableData.tabData[realKey] = DEFULT_VISIABLE_DATA;
+        });
+    },
+    onDeleteTDS:
+        (tabKey: TabKeyType, conn: DynmcpConnection) => async (api) => {
+            const realKey = tabKey ?? "default";
+            const state = api.getState();
+            const editorBody = state.visiableData.tabData[realKey].value;
+            const body: IDSItem = JSON.parse(editorBody ?? "");
+            const res = await deleteTDS({ api_key: conn.api_key }, body.id);
+            api.setState((s: State) => {
+                s.refresh.tabData[realKey] = !s.refresh.tabData[realKey];
+                s.visiableData.tabData[realKey] = DEFULT_VISIABLE_DATA;
+            });
+        },
+    onDeleteIDS:
+        (tabKey: TabKeyType, conn: DynmcpConnection) => async (api) => {
+            const realKey = tabKey ?? "default";
+            const state = api.getState();
+            const editorBody = state.visiableData.tabData[realKey].value;
+            const body: IDSItem = JSON.parse(editorBody ?? "");
+            const res = await deleteIDS({ api_key: conn.api_key }, body.id);
+            api.setState((s: State) => {
+                s.refresh.tabData[realKey] = !s.refresh.tabData[realKey];
+                s.visiableData.tabData[realKey] = DEFULT_VISIABLE_DATA;
+            });
+        },
 });
 
 export const maps = {
@@ -87,10 +151,7 @@ export const maps = {
         (tabData: Record<string, VisiableData>) => {
             return (tabKey: TabKeyType): VisiableData => {
                 const key = tabKey ?? "default";
-                const defaultData: VisiableData = {
-                    component: VisiableComponent.Overview,
-                };
-                const res = tabData[key] ?? defaultData;
+                const res = tabData[key] ?? DEFULT_VISIABLE_DATA;
                 return res;
             };
         }
