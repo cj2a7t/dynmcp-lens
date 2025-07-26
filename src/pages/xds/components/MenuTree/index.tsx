@@ -1,5 +1,7 @@
+import { PUT_IDS, PUT_TDS } from "@/consts/xds";
 import { VisiableComponent } from "@/types/xds";
 import { useFlatInject, useHttp } from "@/utils/hooks";
+import { toPrettyJsonString } from "@/utils/json";
 import { useTabKey } from "@/utils/tabkey";
 import {
     AppstoreOutlined,
@@ -8,7 +10,7 @@ import {
     ToolOutlined,
 } from "@ant-design/icons";
 import { Spin, Tree, TreeDataNode } from "antd";
-import { ReactNode, useState } from "react";
+import { Key, ReactNode, useState } from "react";
 import styles from "./index.module.less";
 
 interface ParentTitleProps {
@@ -91,11 +93,14 @@ export default () => {
                     label="iDS"
                     icon={<AppstoreOutlined />}
                     color="#1890ff"
-                    onAdd={() =>
+                    onAdd={() => {
+                        console.log("Add IDS");
                         onVisiableData(tabKey, {
                             component: VisiableComponent.Editor,
-                        })
-                    }
+                            value: toPrettyJsonString(PUT_IDS),
+                            editMode: false,
+                        });
+                    }}
                     onClick={() =>
                         onVisiableData(tabKey, {
                             component: VisiableComponent.IDSTable,
@@ -109,6 +114,7 @@ export default () => {
                     title: item.name,
                     key: item.id,
                     icon: <FileTextOutlined />,
+                    item,
                 })) ?? [],
         },
         {
@@ -117,11 +123,14 @@ export default () => {
                     label="tDS"
                     icon={<ToolOutlined />}
                     color="#52c41a"
-                    onAdd={() =>
+                    onAdd={() => {
+                        console.log("Add TDS");
                         onVisiableData(tabKey, {
                             component: VisiableComponent.Editor,
-                        })
-                    }
+                            value: toPrettyJsonString(PUT_TDS),
+                            editMode: false,
+                        });
+                    }}
                     onClick={() =>
                         onVisiableData(tabKey, {
                             component: VisiableComponent.TDSTable,
@@ -135,9 +144,22 @@ export default () => {
                     title: item.name,
                     key: item.id,
                     icon: <FileTextOutlined />,
+                    item,
                 })) ?? [],
         },
     ];
+
+    const handleSelect = (_keys: Key[], info: any) => {
+        console.log("Selected:", info);
+        if (!info.node.children) {
+            onVisiableData(tabKey, {
+                component: VisiableComponent.Editor,
+                value: toPrettyJsonString(info.node.item),
+                editMode: true,
+            });
+        }
+    };
+
     return (
         <Spin spinning={loadingIDS || loadingTDS}>
             <div
@@ -158,6 +180,7 @@ export default () => {
                         height: "calc(100vh - 120px)",
                         backgroundColor: "rgba(245, 245, 245, 0.8)",
                     }}
+                    onSelect={handleSelect}
                 />
             </div>
         </Spin>

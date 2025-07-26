@@ -34,6 +34,8 @@ export enum VisiableComponent {
 }
 
 export type VisiableData = {
-    value?: string;
     component: VisiableComponent;
+    // Editor
+    value?: string;
+    editMode?: boolean;
 };
