@@ -36,6 +36,7 @@ export enum VisiableComponent {
 export type VisiableData = {
     component: VisiableComponent;
     // Editor
+    scene: string;
     value?: string;
     editMode?: boolean;
 };

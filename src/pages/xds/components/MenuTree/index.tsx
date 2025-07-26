@@ -79,11 +79,17 @@ export default () => {
     const [connStore] = useFlatInject("connection");
     const { mapConnection } = connStore;
 
-    const { loading: loadingIDS } = useHttp(() =>
-        onFetchIDS(tabKey, mapConnection(tabKey))
+    const { loading: loadingIDS } = useHttp(
+        () => onFetchIDS(tabKey, mapConnection(tabKey)),
+        {
+            deps: [xdsStore.refresh.tabData[tabKey]],
+        }
     );
-    const { loading: loadingTDS } = useHttp(() =>
-        onFetchTDS(tabKey, mapConnection(tabKey))
+    const { loading: loadingTDS } = useHttp(
+        () => onFetchTDS(tabKey, mapConnection(tabKey)),
+        {
+            deps: [xdsStore.refresh.tabData[tabKey]],
+        }
     );
 
     const treeData: TreeDataNode[] = [
@@ -99,11 +105,13 @@ export default () => {
                             component: VisiableComponent.Editor,
                             value: toPrettyJsonString(PUT_IDS),
                             editMode: false,
+                            scene: "put_ids",
                         });
                     }}
                     onClick={() =>
                         onVisiableData(tabKey, {
                             component: VisiableComponent.IDSTable,
+                            scene: "ids_table",
                         })
                     }
                 />
@@ -115,6 +123,7 @@ export default () => {
                     key: item.id,
                     icon: <FileTextOutlined />,
                     item,
+                    type: "ids",
                 })) ?? [],
         },
         {
@@ -129,11 +138,13 @@ export default () => {
                             component: VisiableComponent.Editor,
                             value: toPrettyJsonString(PUT_TDS),
                             editMode: false,
+                            scene: "put_tds",
                         });
                     }}
                     onClick={() =>
                         onVisiableData(tabKey, {
                             component: VisiableComponent.TDSTable,
+                            scene: "tds_table",
                         })
                     }
                 />
@@ -145,6 +156,7 @@ export default () => {
                     key: item.id,
                     icon: <FileTextOutlined />,
                     item,
+                    type: "tds",
                 })) ?? [],
         },
     ];
@@ -156,6 +168,7 @@ export default () => {
                 component: VisiableComponent.Editor,
                 value: toPrettyJsonString(info.node.item),
                 editMode: true,
+                scene: info.node.type == "tds" ? "put_tds" : "put_ids",
             });
         }
     };
