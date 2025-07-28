@@ -13,8 +13,18 @@ export const invokeSaveConnection = async (
         conn: payload,
     });
 
-    console.log("invokeSaveConnection res", res);
+    console.log("invokeSaveConnection res: ", res);
 
+    if (res.code === 0 && res.data !== undefined) {
+        return res.data;
+    } else {
+        throw new Error(res.message || "Unknown error while saving connection");
+    }
+};
+
+export const invokeQryConnection = async (): Promise<DynmcpConnection[]> => {
+    const res: InvokeResult<DynmcpConnection[]> = await invoke("query_all");
+    console.log("invokeQryConnection res: ", res);
     if (res.code === 0 && res.data !== undefined) {
         return res.data;
     } else {
