@@ -1,4 +1,7 @@
-import { invokeSaveConnection } from "@/request/ipc/invoke";
+import {
+    invokeQryConnection,
+    invokeSaveConnection,
+} from "@/request/ipc/invoke";
 import { DynmcpConnection } from "@/types/connection";
 import { TabKeyType } from "@/types/tab";
 import { NaturFactory } from "@/utils/NaturFactory";
@@ -8,6 +11,7 @@ const initState = {
     tabConnection: {
         tabData: {},
     } as TabData<DynmcpConnection>,
+    connections: [] as DynmcpConnection[],
 };
 
 const state = initState;
@@ -24,6 +28,12 @@ const actions = NaturFactory.actionsCreator(state)({
                 s.tabConnection.tabData[realKey] = con;
             });
         },
+    onFetchConnections: () => async (api) => {
+        const conns = await invokeQryConnection();
+        api.setState((s: State) => {
+            s.connections = conns;
+        });
+    },
 });
 
 export const maps = {

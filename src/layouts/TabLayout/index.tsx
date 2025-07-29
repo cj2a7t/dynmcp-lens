@@ -1,4 +1,4 @@
-import { useFlatInject } from "@/utils/hooks";
+import { useFlatInject, useHttp } from "@/utils/hooks";
 import { useTabKey } from "@/utils/tabkey";
 import {
     ArrowLeftOutlined,
@@ -17,7 +17,9 @@ const LayoutFC = () => {
     const [store] = useFlatInject("connection");
     const tabKey = useTabKey();
     const [inputValue, setInputValue] = useState("");
-
+    const { loading: loadingFetchCon } = useHttp(() =>
+        store.onFetchConnections()
+    );
     const handleDragStart = (event: any) => {
         event.preventDefault();
     };
@@ -40,20 +42,44 @@ const LayoutFC = () => {
         ),
     });
 
+    const renderEmptyItem = (label: string) => ({
+        value: "",
+        label: (
+            <div
+                style={{
+                    fontSize: 11,
+                    color: "#999",
+                    // padding: "4px 8px",
+                    fontStyle: "italic",
+                }}
+            >
+                {label}
+            </div>
+        ),
+        disabled: true,
+    });
+
+    const starredConnections = store.connections.filter((c) => c.starred);
+    const recentConnections = store.connections.filter((c) => !c.starred);
+
     const options = [
         {
             label: <span style={{ fontSize: 11 }}>⭐ Starred Connections</span>,
-            options: [
-                renderItem("Production", "https://prod.dynmcp.com", true),
-                renderItem("Development", "https://dev.dynmcp.com", true),
-            ],
+            options:
+                starredConnections.length > 0
+                    ? starredConnections.map((conn) =>
+                          renderItem(conn.name, conn.url, true)
+                      )
+                    : [renderEmptyItem("No starred connections")],
         },
         {
             label: <span style={{ fontSize: 11 }}>🕑 Recent Connections</span>,
-            options: [
-                renderItem("Testing", "https://test.dynmcp.com"),
-                renderItem("Localhost", "http://localhost:8080"),
-            ],
+            options:
+                recentConnections.length > 0
+                    ? recentConnections.map((conn) =>
+                          renderItem(conn.name, conn.url, false)
+                      )
+                    : [renderEmptyItem("No recent connections")],
         },
     ];
 
