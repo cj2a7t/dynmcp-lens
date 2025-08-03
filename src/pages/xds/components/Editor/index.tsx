@@ -1,3 +1,4 @@
+import SwaggerUploader from "@/components/SwaggerUploader";
 import { useFlatInject } from "@/utils/hooks";
 import { initMonacoTheme } from "@/utils/monaco";
 import { useTabKey } from "@/utils/tabkey";
@@ -98,24 +99,37 @@ export default () => {
                     )}
 
                     {visiableData?.editMode == false && (
-                        <Button
-                            size="small"
-                            type="primary"
-                            icon={<SaveOutlined />}
-                            className={styles.button}
-                            onClick={() => {
-                                visiableData?.scene == "put_tds"
-                                    ? onPutTDS(tabKey, mapConnection(tabKey))
-                                    : onPutIDS(tabKey, mapConnection(tabKey));
-                                message.success(
-                                    visiableData?.scene === "put_tds"
-                                        ? `TDS saved successfully`
-                                        : `IDS saved successfully`
-                                );
-                            }}
-                        >
-                            Save
-                        </Button>
+                        <>
+                            {visiableData?.scene === "put_tds" && (
+                                <SwaggerUploader
+                                    className={styles.button}
+                                ></SwaggerUploader>
+                            )}
+                            <Button
+                                size="small"
+                                type="primary"
+                                icon={<SaveOutlined />}
+                                className={styles.button}
+                                onClick={() => {
+                                    visiableData?.scene == "put_tds"
+                                        ? onPutTDS(
+                                              tabKey,
+                                              mapConnection(tabKey)
+                                          )
+                                        : onPutIDS(
+                                              tabKey,
+                                              mapConnection(tabKey)
+                                          );
+                                    message.success(
+                                        visiableData?.scene === "put_tds"
+                                            ? `TDS saved successfully`
+                                            : `IDS saved successfully`
+                                    );
+                                }}
+                            >
+                                Save
+                            </Button>
+                        </>
                     )}
                 </div>
             </div>
