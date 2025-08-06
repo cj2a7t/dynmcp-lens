@@ -51,6 +51,10 @@ pub fn create_main_window(app: &AppHandle) -> WebviewWindow {
         .expect("failed to set size");
 
     main_window
+        .set_position(LogicalPosition::new(100.0, 50.0))
+        .expect("failed to set position");
+
+    main_window
         .set_min_size(Some(LogicalSize::new(1280, 800)))
         .expect("failed to set min size");
 

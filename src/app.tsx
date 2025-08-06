@@ -6,7 +6,7 @@ const App = ({ children }: { children: ReactNode }) => (
     <ConfigProvider
         theme={{
             token: {
-                fontSize: 11,
+                fontSize: 12,
             },
             // algorithm: theme.compactAlgorithm,
             // algorithm: theme.darkAlgorithm,

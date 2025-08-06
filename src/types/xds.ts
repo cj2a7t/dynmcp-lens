@@ -1,3 +1,5 @@
+import { InputSchemaItem } from "@/utils/swagger";
+
 export type xDSParam = {
     api_key?: string;
 };
@@ -39,4 +41,9 @@ export type VisiableData = {
     scene: string;
     value?: string;
     editMode?: boolean;
+};
+
+export type UploadSwaggerData = {
+    visiable: boolean;
+    parsedSchemas: InputSchemaItem[];
 };
