@@ -1,3 +1,5 @@
+import { InputSchemaItem } from "@/utils/swagger";
+
 export type xDSParam = {
     api_key?: string;
 };
@@ -43,4 +45,5 @@ export type VisiableData = {
 
 export type UploadSwaggerData = {
     visiable: boolean;
+    parsedSchemas: InputSchemaItem[];
 };

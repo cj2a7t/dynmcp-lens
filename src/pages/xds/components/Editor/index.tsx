@@ -170,7 +170,6 @@ export default () => {
                     },
                 }}
                 onChange={(value) => {
-                    console.log("===>>", value);
                     xdsStore.onEditVisiableValue(tabKey, value ?? "");
                 }}
             />

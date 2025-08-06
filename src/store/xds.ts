@@ -12,6 +12,7 @@ import {
     VisiableData,
 } from "@/types/xds";
 import { NaturFactory } from "@/utils/NaturFactory";
+import { buildTdsFromInput, InputSchemaItem } from "@/utils/swagger";
 import { TabData } from "./tabdata";
 
 const initState = {
@@ -72,6 +73,19 @@ const actions = NaturFactory.actionsCreator(state)({
             s.visiableData.tabData[realKey].value = value;
         });
     },
+    onEditVisiableValue4Swagger:
+        (tabKey: TabKeyType, swagger: InputSchemaItem) => async (api) => {
+            const realKey = tabKey ?? "default";
+            api.setState((s: State) => {
+                if (!s.visiableData.tabData[realKey]) {
+                    s.visiableData.tabData[realKey] = {} as VisiableData;
+                }
+                s.visiableData.tabData[realKey].value =
+                    buildTdsFromInput(swagger);
+                s.uploadSwaggerData.tabData[realKey].visiable = false;    
+            });
+        },
+
     onPutTDS: (tabKey: TabKeyType, conn: DynmcpConnection) => async (api) => {
         const realKey = tabKey ?? "default";
         const state = api.getState();
@@ -127,6 +141,19 @@ const actions = NaturFactory.actionsCreator(state)({
                         {} as UploadSwaggerData;
                 }
                 s.uploadSwaggerData.tabData[realKey].visiable = isVisiable;
+            });
+        },
+    onUpdateUploadSwagger:
+        (tabKey: TabKeyType, parsedSchemas: InputSchemaItem[]) =>
+        async (api) => {
+            const realKey = tabKey ?? "default";
+            api.setState((s: State) => {
+                if (!s.uploadSwaggerData.tabData[realKey]) {
+                    s.uploadSwaggerData.tabData[realKey] =
+                        {} as UploadSwaggerData;
+                }
+                s.uploadSwaggerData.tabData[realKey].parsedSchemas =
+                    parsedSchemas;
             });
         },
 });

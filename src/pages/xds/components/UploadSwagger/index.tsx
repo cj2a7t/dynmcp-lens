@@ -1,30 +1,36 @@
 import HttpMethodTag from "@/components/HttpMethodTag";
 import { useFlatInject } from "@/utils/hooks";
+import { parseInputSchemas } from "@/utils/swagger";
 import { useTabKey } from "@/utils/tabkey";
 import { CloseOutlined, UploadOutlined } from "@ant-design/icons";
 import { Button, List, message, Modal, Upload, UploadProps } from "antd";
+import { RcFile } from "antd/es/upload";
 import styles from "./index.module.less";
 
 export default () => {
     const tabKey = useTabKey();
     const [xdsStore] = useFlatInject("xds");
+    const storeParsedSchemas =
+        xdsStore.uploadSwaggerData.tabData[tabKey].parsedSchemas;
 
     const props: UploadProps = {
         name: "file",
-        multiple: true,
-        action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
-        onChange(info) {
-            const { status } = info.file;
-            if (status !== "uploading") {
-                console.log(info.file, info.fileList);
-            }
-            if (status === "done") {
-                message.success(
-                    `${info.file.name} file uploaded successfully.`
-                );
-            } else if (status === "error") {
-                message.error(`${info.file.name} file upload failed.`);
-            }
+        multiple: false,
+        beforeUpload(file: RcFile) {
+            const reader = new FileReader();
+            reader.onload = async () => {
+                try {
+                    const content = reader.result;
+                    const res = await parseInputSchemas(content);
+                    console.log("parseInputSchemas:", res);
+                    xdsStore.onUpdateUploadSwagger(tabKey, res);
+                    message.success(`${file.name} imported successfully`);
+                } catch (err) {
+                    message.error(`${file.name} import failed`);
+                }
+            };
+            reader.readAsText(file);
+            return false;
         },
         onDrop(e) {
             console.log("Dropped files", e.dataTransfer.files);
@@ -63,45 +69,27 @@ export default () => {
                 className="demo-loadmore-list"
                 loading={false}
                 itemLayout="horizontal"
-                dataSource={[
-                    {
-                        name: "get_email",
-                        description: "Retrieve email details by ID",
-                        method: "GET",
-                    },
-                    {
-                        name: "get_email2",
-                        description:
-                            "Retrieve email details by ID2Retrieve email details by ID2Retrieve email details by ID2Retrieve email details by ID2Retrieve email details by ID2",
-                        method: "POST",
-                    },
-                    {
-                        name: "get_email2",
-                        description: "Retrieve email details by ID2",
-                        method: "POST",
-                    },
-                    {
-                        name: "get_email2",
-                        description: "Retrieve email details by ID2",
-                        method: "PATCH",
-                    },
-                    {
-                        name: "get_email2",
-                        description: "Retrieve email details by ID2",
-                        method: "PUT",
-                    },
-                    {
-                        name: "get_email2",
-                        description: "Retrieve email details by ID2",
-                        method: "DELETE",
-                    },
-                ]}
+                dataSource={storeParsedSchemas}
                 renderItem={(item) => (
-                    <List.Item actions={[<a key="use-it">use it</a>]}>
+                    <List.Item
+                        actions={[
+                            <a
+                                key={item.id}
+                                onClick={() => {
+                                    xdsStore.onEditVisiableValue4Swagger(
+                                        tabKey,
+                                        item
+                                    );
+                                }}
+                            >
+                                use it
+                            </a>,
+                        ]}
+                    >
                         <List.Item.Meta
                             title={
                                 <>
-                                    <a href="https://ant.design">{item.name}</a>
+                                    <a>{item.url}</a>
                                     <HttpMethodTag method={item.method} />
                                 </>
                             }
