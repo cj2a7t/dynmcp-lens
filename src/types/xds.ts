@@ -40,3 +40,7 @@ export type VisiableData = {
     value?: string;
     editMode?: boolean;
 };
+
+export type UploadSwaggerData = {
+    visiable: boolean;
+};

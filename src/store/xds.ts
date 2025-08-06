@@ -7,6 +7,7 @@ import {
     IDSResponse,
     TDSItem,
     TDSResponse,
+    UploadSwaggerData,
     VisiableComponent,
     VisiableData,
 } from "@/types/xds";
@@ -27,6 +28,9 @@ const initState = {
     refresh: {
         tabData: {},
     } as TabData<Boolean>,
+    uploadSwaggerData: {
+        tabData: {},
+    } as TabData<UploadSwaggerData>,
 };
 
 const DEFULT_VISIABLE_DATA: VisiableData = {
@@ -112,6 +116,17 @@ const actions = NaturFactory.actionsCreator(state)({
             api.setState((s: State) => {
                 s.refresh.tabData[realKey] = !s.refresh.tabData[realKey];
                 s.visiableData.tabData[realKey] = DEFULT_VISIABLE_DATA;
+            });
+        },
+    onVisiableUploadSwagger:
+        (tabKey: TabKeyType, isVisiable: boolean) => async (api) => {
+            const realKey = tabKey ?? "default";
+            api.setState((s: State) => {
+                if (!s.uploadSwaggerData.tabData[realKey]) {
+                    s.uploadSwaggerData.tabData[realKey] =
+                        {} as UploadSwaggerData;
+                }
+                s.uploadSwaggerData.tabData[realKey].visiable = isVisiable;
             });
         },
 });
