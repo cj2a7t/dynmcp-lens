@@ -50,12 +50,12 @@ pub fn create_main_window(app: &AppHandle) -> WebviewWindow {
         .set_size(LogicalSize::new(1280, 800))
         .expect("failed to set size");
 
-    main_window.center().unwrap();
-
     main_window
         .set_min_size(Some(LogicalSize::new(1280, 800)))
         .expect("failed to set min size");
 
+    main_window.center().unwrap();
+    main_window.set_focus().expect("failed to focus window");
     #[cfg(target_os = "macos")]
     native_windows(&main_window);
 
