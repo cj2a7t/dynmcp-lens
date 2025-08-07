@@ -8,7 +8,7 @@ import {
     StarOutlined,
 } from "@ant-design/icons";
 import { AutoComplete, Button, Flex, Input, Layout } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet } from "umi";
 import HeaderTab from "./components/HeaderTab";
 
@@ -49,7 +49,6 @@ const LayoutFC = () => {
                 style={{
                     fontSize: 11,
                     color: "#999",
-                    // padding: "4px 8px",
                     fontStyle: "italic",
                 }}
             >
@@ -89,10 +88,11 @@ const LayoutFC = () => {
                 data-tauri-drag-region
                 onMouseDown={handleDragStart}
                 style={{
-                    backgroundColor: "#f0f5ff",
+                    backgroundColor: "#595959",
                     height: 36,
                     userSelect: "none",
                 }}
+                className="tauri-drag"
             >
                 <HeaderTab />
             </Header>
@@ -102,7 +102,7 @@ const LayoutFC = () => {
                         align="center"
                         style={{
                             height: "45px",
-                            borderBottom: "1px solid #f0f5ff",
+                            borderBottom: "1px solid #f8f9fa",
                             backgroundColor: "white",
                         }}
                     >
@@ -160,7 +160,7 @@ const LayoutFC = () => {
                                 placeholder="http(s)://dynmcp_domain/$api_key"
                                 style={{
                                     border: "none",
-                                    backgroundColor: "#f0f5ff",
+                                    backgroundColor: "#f8f9fa",
                                     height: 30,
                                     borderRadius: 10,
                                 }}
