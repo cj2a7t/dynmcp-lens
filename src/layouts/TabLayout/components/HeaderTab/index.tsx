@@ -1,20 +1,29 @@
 import { getTabKey } from "@/utils/tabkey";
-import { Tabs } from "antd";
-import React, { useEffect, useState } from "react";
+import { LinkOutlined } from "@ant-design/icons";
+import { Button, Flex } from "antd";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "umi";
 import { v4 as uuidv4 } from "uuid";
 import "./style.less";
 
-type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
+interface TabItem {
+    label: string;
+    key: string;
+    path: string;
+}
 
-const App: React.FC = () => {
+const MIN_TABS = 1;
+const MAX_TABS = 20;
+
+const HeaderTab: React.FC = () => {
     const nav = useNavigate();
-
-    const [items, setItems] = useState<
-        { label: string; key: string; path: string }[]
-    >([]);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [items, setItems] = useState<TabItem[]>([]);
     const [activeKey, setActiveKey] = useState("");
     const location = useLocation();
+
+    const canRemoveTab = items.length > MIN_TABS;
+    const canAddTab = items.length < MAX_TABS;
 
     useEffect(() => {
         const pathname = location.pathname;
@@ -55,15 +64,19 @@ const App: React.FC = () => {
         setActiveKey(tabKey);
     }, [location]);
 
-    const onChange = (newActiveKey: string) => {
-        setActiveKey(newActiveKey);
-        const matchItem = items.find((item) => item.key === newActiveKey);
+    const switchTab = (tabKey: string) => {
+        setActiveKey(tabKey);
+        const matchItem = items.find((item) => item.key === tabKey);
         if (matchItem?.path) {
             nav(matchItem.path);
         }
     };
 
-    const add = () => {
+    const addTab = () => {
+        if (!canAddTab) {
+            return;
+        }
+
         const newKey = uuidv4();
         const newTab = {
             label: "New Connection",
@@ -76,23 +89,28 @@ const App: React.FC = () => {
         nav(newTab.path);
     };
 
-    const remove = (targetKey: TargetKey) => {
-        if (items.length === 1) {
+    const removeTab = (tabKey: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (items.length <= MIN_TABS) {
             return;
         }
+
         let newActiveKey = activeKey;
         let lastIndex = -1;
         items.forEach((item, i) => {
-            if (item.key === targetKey) lastIndex = i - 1;
+            if (item.key === tabKey) lastIndex = i - 1;
         });
-        const newPanes = items.filter((item) => item.key !== targetKey);
-        if (newPanes.length && newActiveKey === targetKey) {
+
+        const newPanes = items.filter((item) => item.key !== tabKey);
+        if (newPanes.length && newActiveKey === tabKey) {
             if (lastIndex >= 0) {
                 newActiveKey = newPanes[lastIndex].key;
             } else {
                 newActiveKey = newPanes[0].key;
             }
         }
+
         setItems(newPanes);
         setActiveKey(newActiveKey);
         const match = newPanes.find((item) => item.key === newActiveKey);
@@ -101,34 +119,53 @@ const App: React.FC = () => {
         }
     };
 
-    const onEdit = (
-        targetKey: React.MouseEvent | React.KeyboardEvent | string,
-        action: "add" | "remove"
-    ) => {
-        if (action === "add") {
-            add();
-        } else {
-            remove(targetKey);
-        }
-    };
-
-    const handleDragStart = (event: any) => {
-        event.preventDefault();
-    };
-
     return (
-        <Tabs
+        <div
+            className="custom-header-tab"
             data-tauri-drag-region
-            onMouseDown={handleDragStart}
-            type="editable-card"
-            onChange={onChange}
-            activeKey={activeKey}
-            onEdit={onEdit}
-            items={items}
-            size="small"
-            className="header-tab"
-        />
+            ref={containerRef}
+        >
+            <Flex align="center" gap={8} className="tab-container">
+                <div className="tab-items-container">
+                    {items.map((item) => (
+                        <div
+                            key={item.key}
+                            className={`tab-item ${
+                                activeKey === item.key ? "active" : ""
+                            }`}
+                            onClick={() => switchTab(item.key)}
+                        >
+                            <LinkOutlined className="tab-icon" />
+                            <span className="tab-label" title={item.label}>
+                                {item.label}
+                            </span>
+                            {canRemoveTab && (
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    className="tab-close-btn"
+                                    onClick={(e) => removeTab(item.key, e)}
+                                >
+                                    ×
+                                </Button>
+                            )}
+                        </div>
+                    ))}
+                </div>
+                {canAddTab && (
+                    <Button
+                        type="text"
+                        size="small"
+                        className="tab-add-btn"
+                        onClick={addTab}
+                        title={`Add new tab (${items.length}/${MAX_TABS})`}
+                    >
+                        +
+                    </Button>
+                )}
+            </Flex>
+        </div>
     );
 };
 
-export default App;
+export default HeaderTab;
